@@ -222,7 +222,7 @@
                                 </StackPanel>
                             </RadioButton>
                             </StackPanel>
-                            <ToggleButton x:Name="GrpGames" Style="{StaticResource NavGroup}" Content="RESET JOGOS"/>
+                            <ToggleButton x:Name="GrpGames" Style="{StaticResource NavGroup}" Content="GLM JOGOS"/>
                             <StackPanel x:Name="GrpGamesItems" Margin="10,0,0,4" Visibility="{Binding IsChecked, ElementName=GrpGames, Converter={StaticResource BoolVis}}">
                             <RadioButton x:Name="NavLauncher" Style="{StaticResource NavItem}" Tag="PageLauncher" Checked="Nav_Checked">
                                 <StackPanel Orientation="Horizontal">
@@ -249,7 +249,7 @@
                                 </StackPanel>
                             </RadioButton>
                             </StackPanel>
-                            <ToggleButton x:Name="GrpPerf" Style="{StaticResource NavGroup}" Content="RESET DESEMPENHO"/>
+                            <ToggleButton x:Name="GrpPerf" Style="{StaticResource NavGroup}" Content="GLM DESEMPENHO"/>
                             <StackPanel x:Name="GrpPerfItems" Margin="10,0,0,4" Visibility="{Binding IsChecked, ElementName=GrpPerf, Converter={StaticResource BoolVis}}">
                             <RadioButton x:Name="NavBench" Style="{StaticResource NavItem}" Tag="PageBench" Checked="Nav_Checked">
                                 <StackPanel Orientation="Horizontal">
@@ -270,7 +270,7 @@
                                 </StackPanel>
                             </RadioButton>
                             </StackPanel>
-                            <ToggleButton x:Name="GrpTools" Style="{StaticResource NavGroup}" Content="RESET FERRAMENTAS"/>
+                            <ToggleButton x:Name="GrpTools" Style="{StaticResource NavGroup}" Content="GLM FERRAMENTAS"/>
                             <StackPanel x:Name="GrpToolsItems" Margin="10,0,0,4" Visibility="{Binding IsChecked, ElementName=GrpTools, Converter={StaticResource BoolVis}}">
                             <RadioButton x:Name="NavOptimize" Style="{StaticResource NavItem}" Tag="PageOptimize" Checked="Nav_Checked">
                                 <StackPanel Orientation="Horizontal">
@@ -315,7 +315,7 @@
                                 </StackPanel>
                             </RadioButton>
                             </StackPanel>
-                            <ToggleButton x:Name="GrpMaker" Style="{StaticResource NavGroup}" Content="RESET MAKER"/>
+                            <ToggleButton x:Name="GrpMaker" Style="{StaticResource NavGroup}" Content="GLM MAKER"/>
                             <StackPanel x:Name="GrpMakerItems" Margin="10,0,0,4" Visibility="{Binding IsChecked, ElementName=GrpMaker, Converter={StaticResource BoolVis}}">
                             <RadioButton x:Name="NavMakerPorts" Style="{StaticResource NavItem}" Tag="PageMakerPorts" Checked="Nav_Checked">
                                 <StackPanel Orientation="Horizontal">
@@ -392,7 +392,7 @@
                                     <Button DockPanel.Dock="Bottom" Style="{StaticResource PrimaryButton}" Content="RODAR BENCHMARK" Margin="0,14,0,0"
                                             Padding="20,13" Click="DashBench_Click"/>
                                     <StackPanel>
-                                        <TextBlock Text="DESEMPENHO · RESET BENCH" Style="{StaticResource Label}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="DESEMPENHO · GLM BENCH" Style="{StaticResource Label}" Margin="0,0,0,4"/>
                                         <Grid>
                                             <TextBlock x:Name="DashScore" Text="—" Style="{StaticResource Hero}" FontFamily="{StaticResource Mono}"/>
                                             <TextBlock x:Name="DashScoreDelta" Foreground="{DynamicResource Muted}" FontSize="12"
@@ -549,7 +549,7 @@
                             <!-- Saúde do PC (como "Rewards"): lista de verificação + ação -->
                             <Border Grid.Column="4" Style="{StaticResource CardBorder}" Padding="22,20">
                                 <DockPanel>
-                                    <Button DockPanel.Dock="Bottom" Style="{StaticResource PrimaryButton}" Content="RESET OTIMIZA" Padding="20,13"
+                                    <Button DockPanel.Dock="Bottom" Style="{StaticResource PrimaryButton}" Content="GLM OTIMIZA" Padding="20,13"
                                             Margin="0,14,0,0" Click="DashOptimize_Click"/>
                                     <StackPanel>
                                         <TextBlock Text="Saúde do PC" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10"/>
@@ -790,12 +790,12 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- ===== RESET DRIVER ===== -->
+                <!-- ===== GLM DRIVER ===== -->
                 <ScrollViewer x:Name="PageDriver" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="36,30,36,30">
                         <Grid Margin="0,0,0,20">
                             <StackPanel Margin="0,0,190,0">
-                                <TextBlock Text="RESET DRIVER" Style="{StaticResource H1}"/>
+                                <TextBlock Text="GLM DRIVER" Style="{StaticResource H1}"/>
                                 <TextBlock Text="Verifique, baixe e instale drivers · NVIDIA e AMD automáticos, fabricantes pela página oficial" Style="{StaticResource Sub}" TextWrapping="Wrap"/>
                             </StackPanel>
                             <Button x:Name="BtnDrvScan" Style="{StaticResource PrimaryButton}" Content="VERIFICAR TUDO" Padding="20,9"
@@ -900,12 +900,12 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- ===== RESET INTEGRAÇÃO (iluminação) ===== -->
+                <!-- ===== GLM INTEGRAÇÃO (iluminação) ===== -->
                 <ScrollViewer x:Name="PageInteg" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="36,30,36,30">
                         <Grid Margin="0,0,0,20">
                             <StackPanel Margin="0,0,190,0">
-                                <TextBlock Text="RESET INTEGRAÇÃO" Style="{StaticResource H1}"/>
+                                <TextBlock Text="GLM INTEGRAÇÃO" Style="{StaticResource H1}"/>
                                 <TextBlock Text="Iluminação e efeitos do PC · Corsair iCUE, OpenRGB (MSI, Gigabyte, ASUS...) e Razer Chroma (em teste)" Style="{StaticResource Sub}" TextWrapping="Wrap"/>
                             </StackPanel>
                             <Button x:Name="BtnLightConnect" Style="{StaticResource OutlineButton}" Content="CONECTAR TUDO" Padding="20,9"
@@ -1035,7 +1035,7 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- ===== RESET JOGOS (inicializador) ===== -->
+                <!-- ===== GLM JOGOS (inicializador) ===== -->
                 <Grid x:Name="PageLauncher" Margin="36,30,36,30" Visibility="Collapsed">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="320"/>
@@ -1051,7 +1051,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0" Margin="0,0,0,14">
-                            <TextBlock Text="RESET JOGOS" Style="{StaticResource H1}"/>
+                            <TextBlock Text="GLM JOGOS" Style="{StaticResource H1}"/>
                             <TextBlock x:Name="LGameCount" Text="Procurando seus jogos…" Style="{StaticResource Sub}" TextWrapping="Wrap"/>
                         </StackPanel>
                         <StackPanel Grid.Row="1" Margin="0,0,0,10">
@@ -1165,7 +1165,7 @@
                                 <StackPanel>
                                     <TextBlock Text="PROGRAMAS AUXILIARES" Style="{StaticResource Label}"/>
                                     <TextBlock Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,10">
-                                        Ferramentas de terceiros que abrem antes do jogo (monitoramento, comandos, mixer de áudio, script...). O RESET JOGOS as abre
+                                        Ferramentas de terceiros que abrem antes do jogo (monitoramento, comandos, mixer de áudio, script...). O GLM JOGOS as abre
                                         sozinho ao clicar em JOGAR e pode fechá-las junto com o jogo. Nada é escrito nas opções da Steam.
                                     </TextBlock>
                                     <ItemsControl x:Name="LHelpers">
@@ -1596,7 +1596,7 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- ===== RESET BENCH ===== -->
+                <!-- ===== GLM BENCH ===== -->
                 <Grid x:Name="PageBench" Margin="36,30,36,30" Visibility="Collapsed">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -1604,7 +1604,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <StackPanel Margin="0,0,0,16">
-                        <TextBlock Text="RESET BENCH" Style="{StaticResource H1}"/>
+                        <TextBlock Text="GLM BENCH" Style="{StaticResource H1}"/>
                         <TextBlock x:Name="BenchSub" Text="Benchmark de CPU por renderização 3D (path tracing), no mesmo princípio do Cinebench" Style="{StaticResource Sub}"/>
                     </StackPanel>
 
@@ -2067,11 +2067,11 @@
                     </Grid>
                 </Grid>
 
-                <!-- ===== RESET OTIMIZA ===== -->
+                <!-- ===== GLM OTIMIZA ===== -->
                 <ScrollViewer x:Name="PageOptimize" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="36,30,36,30">
                         <StackPanel Margin="0,0,0,20">
-                            <TextBlock Text="RESET OTIMIZA" Style="{StaticResource H1}"/>
+                            <TextBlock Text="GLM OTIMIZA" Style="{StaticResource H1}"/>
                             <TextBlock Text="Libera memória, fecha o que atrapalha e ajusta o Windows para jogos" Style="{StaticResource Sub}"/>
                         </StackPanel>
 
@@ -2100,7 +2100,7 @@
                                     </TextBlock>
                                     <TextBlock x:Name="OptResult" TextWrapping="Wrap" Margin="0,10,0,0"/>
                                 </StackPanel>
-                                <Button x:Name="BtnOptimize" Grid.Column="1" Style="{StaticResource PrimaryButton}" Content="RESET OTIMIZA"
+                                <Button x:Name="BtnOptimize" Grid.Column="1" Style="{StaticResource PrimaryButton}" Content="GLM OTIMIZA"
                                         FontSize="16" Padding="34,16" VerticalAlignment="Center" Click="BtnOptimize_Click"/>
                             </Grid>
                         </Border>
@@ -2481,7 +2481,7 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- ===== RESET MAKER · Portas COM (fantasmas e números COM presos) ===== -->
+                <!-- ===== GLM MAKER · Portas COM (fantasmas e números COM presos) ===== -->
                 <ScrollViewer x:Name="PageMakerPorts" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="36,30,36,30">
                         <StackPanel Margin="0,0,0,20">
@@ -2553,7 +2553,7 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- ===== RESET MAKER · Drivers seriais (CH340, CP210x, FTDI, Prolific, Arduino) ===== -->
+                <!-- ===== GLM MAKER · Drivers seriais (CH340, CP210x, FTDI, Prolific, Arduino) ===== -->
                 <ScrollViewer x:Name="PageMakerDrv" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="36,30,36,30">
                         <Grid Margin="0,0,0,20">
@@ -2715,11 +2715,11 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- ===== RESET OC ===== -->
+                <!-- ===== GLM OC ===== -->
                 <ScrollViewer x:Name="PageOc" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="36,30,36,30">
                         <StackPanel Margin="0,0,0,20">
-                            <TextBlock Text="RESET OC" Style="{StaticResource H1}"/>
+                            <TextBlock Text="GLM OC" Style="{StaticResource H1}"/>
                             <TextBlock Text="Ajustes da GPU, verificador de estabilidade e guia de overclock na BIOS" Style="{StaticResource Sub}"/>
                         </StackPanel>
 
