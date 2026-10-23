@@ -2,7 +2,7 @@ using System.Windows;
 
 namespace ResetExplode;
 
-/// <summary>Aba RESET FERRAMENTAS · Limpeza: temporários, cache do Windows Update, lixeira, logs etc.</summary>
+/// <summary>Aba GLM FERRAMENTAS · Limpeza: temporários, cache do Windows Update, lixeira, logs etc.</summary>
 public partial class MainWindow
 {
     private List<CleanupItem>? _cleanItems;

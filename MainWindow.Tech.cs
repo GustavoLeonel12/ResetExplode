@@ -3,7 +3,7 @@ using Microsoft.Win32;
 
 namespace ResetExplode;
 
-/// <summary>Aba RESET FERRAMENTAS · Técnico: reparo do Windows, rede, impressão, licença e atalhos.</summary>
+/// <summary>Aba GLM FERRAMENTAS · Técnico: reparo do Windows, rede, impressão, licença e atalhos.</summary>
 public partial class MainWindow
 {
     private bool _techBusy;

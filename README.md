@@ -7,14 +7,14 @@
 > O app roda como administrador; não use versões baixadas de outros lugares.
 
 ## Novidades da v0.17
-- **Limpeza** (RESET FERRAMENTAS): temporários, cache do Windows Update, lixeira, logs, dumps e caches, com análise antes de apagar.
-- **Técnico** (RESET FERRAMENTAS): SFC, DISM, CHKDSK, reset de rede e do Windows Update, fila de impressão, licença do Windows,
+- **Limpeza** (GLM FERRAMENTAS): temporários, cache do Windows Update, lixeira, logs, dumps e caches, com análise antes de apagar.
+- **Técnico** (GLM FERRAMENTAS): SFC, DISM, CHKDSK, reset de rede e do Windows Update, fila de impressão, licença do Windows,
   lista de programas instalados e atalhos para as ferramentas do Windows.
 
 ## Novidades da v0.16
-- **Inicialização** (RESET FERRAMENTAS): veja, desative ou remova os programas que abrem junto com o Windows, com opção de desfazer.
-- **Instalar apps** (RESET FERRAMENTAS): Steam, Chrome, Discord, Lightshot, 7-Zip, WinRAR e VLC de uma vez depois de formatar, pelo winget.
-- **RESET MAKER** (nova categoria): Portas COM (fantasmas e números COM presos, que saiu de Otimização) e Drivers seriais
+- **Inicialização** (GLM FERRAMENTAS): veja, desative ou remova os programas que abrem junto com o Windows, com opção de desfazer.
+- **Instalar apps** (GLM FERRAMENTAS): Steam, Chrome, Discord, Lightshot, 7-Zip, WinRAR e VLC de uma vez depois de formatar, pelo winget.
+- **GLM MAKER** (nova categoria): Portas COM (fantasmas e números COM presos, que saiu de Otimização) e Drivers seriais
   (CH340, CP2102, FTDI, Prolific e Arduino: diagnóstico, reinstalar, trocar ou remover versão do driver, Arduino IDE).
 - **Abertura mais rápida**: a janela aparece em ~0,5 s (antes ~4,6 s); o hardware é lido em paralelo, em segundo plano.
 - **Overlay corrigido**: fica por cima de jogos em janela sem borda como GTA V e Cyberpunk 2077 e segue o monitor do jogo.
@@ -51,12 +51,12 @@ App WPF (.NET 8) com:
   ventoinha, PerfCap), VRAM, CPU (uso, núcleo mais ocupado, temperatura, clock médio e máximo, consumo), RAM, nome do jogo e hora. Volta para o topo a cada troca de janela ativa
   (jogos em janela sem borda também se marcam como "sempre no topo") e fica no monitor do jogo. Não aparece em tela cheia exclusiva. O FPS de qualquer jogo é medido via ETW
   (eventos Present de DXGI/D3D9, como o PresentMon, `FrameMonitor.cs`), sem injetar nada no jogo.
-- **RESET BENCH** (`BenchRenderer.cs`): benchmark de CPU no princípio do Cinebench, com renderizador próprio. Path tracer monocromático
+- **GLM BENCH** (`BenchRenderer.cs`): benchmark de CPU no princípio do Cinebench, com renderizador próprio. Path tracer monocromático
   (iluminação global, sombras suaves, metal e vidro com refração), 960×540 a 1024 amostras/pixel, imagem em blocos de 32 px
   distribuídos entre threads do centro para fora. Multi-core (todas as threads) e single-core (1 thread, imagem inteira, ~1min40s num 7700X),
   1 passada ou mínimo de 10 min. Nota = amostras/s ÷ 10.000, determinística (sementes fixas por pixel). Histórico dos últimos 10 resultados.
   Referência: Ryzen 7 7700X ≈ 4.500 multi / 530 single.
-- **RESET BENCH · benchmarks de jogo**:
+- **GLM BENCH · benchmarks de jogo**:
   - *Cena de jogo (GPU)* (`GpuGameBench.cs`): vale em Direct3D 11 com terreno fractal, 40 mil árvores por instancing, sombras 4096² com PCF,
     água, neblina e pós HDR; câmera em trajeto fixo por tempo, 1080p/1440p/4K, 30/60 s. Nota = FPS médio × 10. RTX 5070 em 1080p ≈ 680 FPS.
     Os sensores ficam pausados durante o teste (consultas ao driver geravam engasgos no 1% low).
@@ -71,14 +71,14 @@ App WPF (.NET 8) com:
     lido sem cache do Windows, com passada prévia para o antivírus e 8 threads. Arquivos temporários apagados no final.
   - *Disco* (`DiskBench.cs`): leitura e escrita sequencial (1 MB) e aleatória 4K (QD1 e QD32), sem cache do Windows
     (`FILE_FLAG_NO_BUFFERING`), em arquivo temporário de 512 MB / 1 GB / 4 GB na unidade escolhida; apagado no final. Histórico dos últimos resultados.
-- **RESET OC** (`MainWindow.Oc.cs`, `OcCheck.cs`): ajuste de limite de energia e travamento de clock da GPU NVIDIA (via NVML) com botão de restaurar,
+- **GLM OC** (`MainWindow.Oc.cs`, `OcCheck.cs`): ajuste de limite de energia e travamento de clock da GPU NVIDIA (via NVML) com botão de restaurar,
   e **verificação de estabilidade** de overclock (CPU, GPU ou ambos; 5/15/30 min) com limites de segurança de temperatura, leitura de erros
   de hardware (WHEA, reset de driver de vídeo), veredito, histórico e guia de BIOS conforme a placa-mãe e a CPU.
-- **RESET OTIMIZA** (`Optimizer.cs`, `WindowsTweaks.cs`): um botão que limpa a memória em espera (como o ISLC) e enxuga a RAM dos
+- **GLM OTIMIZA** (`Optimizer.cs`, `WindowsTweaks.cs`): um botão que limpa a memória em espera (como o ISLC) e enxuga a RAM dos
   processos, e fecha os programas marcados (pré-marca só os seguros: OneDrive, Teams, Widgets, Adobe...; programas com janela são
   fechados sem forçar). Ajustes do Windows com interruptor e "Restaurar originais": plano Alto desempenho, Modo de Jogo, desativar
   Game DVR, HAGS, otimizações para jogos em janela, aceleração do mouse. Nada que reduza a segurança (Defender, VBS, UAC, Update).
-- **RESET MAKER** (Arduino, ESP32 e conversores USB-serial):
+- **GLM MAKER** (Arduino, ESP32 e conversores USB-serial):
   - *Portas COM* (`UsbCleaner.cs`): lista e remove registros de dispositivos USB/seriais ausentes ("fantasmas" de Arduino,
     ESP32, CH340, FTDI, CP210x...) e libera os números COM presos no ComDB, com backup para desfazer. Resolve a IDE do Arduino
     não achar a placa ou a porta ir para COM20+.
@@ -104,7 +104,7 @@ App WPF (.NET 8) com:
 - **Saúde dos discos (S.M.A.R.T.)** (`DiskHealth.cs`, `MainWindow.Disks.cs`): página própria com um cartão por disco físico —
   veredito (Bom/Atenção/Ruim) com os motivos, temperatura, horas ligado, ciclos, desgaste do SSD, setores realocados, erros de leitura/escrita
   e previsão de falha. Fontes: Windows Storage (MSFT_PhysicalDisk, MSFT_StorageReliabilityCounter) e MSStorageDriver_FailurePredictStatus.
-- **Relatório exportável** (`ReportBuilder.cs`): botão **EXPORTAR RELATÓRIO** em Sistema. Gera um arquivo HTML (com a marca RESET) ou JSON
+- **Relatório exportável** (`ReportBuilder.cs`): botão **EXPORTAR RELATÓRIO** em Sistema. Gera um arquivo HTML (com a marca GLM INFRA LUFT) ou JSON
   com as informações do sistema, RAM por módulo, discos e saúde dos discos.
 - **RAM detalhada**: resumo (capacidade, canais, tipo DDR4/DDR5/LPDDR5, velocidade) e, por módulo, fabricante, part number, formato,
   voltagem, clock configurado e localização do slot.
@@ -114,13 +114,13 @@ App WPF (.NET 8) com:
 - **Rede** (`NetworkTest.cs`): diagnóstico de lag em ~30 s — latência, jitter e perda de pacotes até o roteador e até a internet (1.1.1.1 e 8.8.8.8),
   tempo de DNS, velocidade de download/upload (servidor público speed.cloudflare.com) e latência sob carga (bufferbloat). O veredito aponta se o
   problema está na rede local (Wi-Fi/cabo/roteador), no provedor ou se a conexão está estável.
-- **RESET INTEGRAÇÃO** (`LightBackends.cs`, `CorsairSdk.cs`, `CorsairSdkInstaller.cs`, `MainWindow.Integ.cs`): controle de iluminação e efeitos
+- **GLM INTEGRAÇÃO** (`LightBackends.cs`, `CorsairSdk.cs`, `CorsairSdkInstaller.cs`, `MainWindow.Integ.cs`): controle de iluminação e efeitos
   de todo o PC numa tela só (em teste). Pontes: **Corsair iCUE / iCUE LINK** (iCUE SDK v4; a DLL é baixada pelo programa, com confirmação e
   verificação de assinatura), **OpenRGB** (servidor SDK local; é o caminho para **MSI Mystic Light, Gigabyte RGB Fusion, ASUS Aura**, RAM, Razer,
   Logitech e outras, já que essas marcas não têm SDK público) e **Razer Chroma** (API REST do Synapse). Efeitos: cor fixa, respiração, arco-íris em onda,
   e cores que seguem a **temperatura da CPU/GPU** ou a **carga da CPU**, com brilho e velocidade. Ao devolver ou fechar, cada fabricante reassume as luzes.
   Para MSI/Gigabyte/ASUS: abra o OpenRGB com o servidor ligado e feche MSI Center, Armoury Crate e RGB Fusion.
-- **RESET JOGOS** (`GameLibrary.cs`, `GameLauncher.cs`, `Vdf.cs`, `MainWindow.Launcher.cs`): inicializador que **detecta os jogos instalados** (Steam, Epic Games, GOG,
+- **GLM JOGOS** (`GameLibrary.cs`, `GameLauncher.cs`, `Vdf.cs`, `MainWindow.Launcher.cs`): inicializador que **detecta os jogos instalados** (Steam, Epic Games, GOG,
   Ubisoft Connect e `.exe` adicionados à mão) e guarda um **perfil por jogo**: prioridade do processo, plano de energia Alto desempenho só durante o jogo,
   GPU dedicada e sem otimizações de tela cheia (por `.exe`, no registro do usuário), **menu de gráficos** (modo de janela, resolução, taxa de atualização e extras
   convertidos em argumentos de inicialização no estilo Source/CS2, Unity ou Unreal) e **programas auxiliares** (ferramentas de terceiros que abrem antes do jogo
@@ -129,14 +129,14 @@ App WPF (.NET 8) com:
 
 ## Interface
 - Visual preto e branco minimalista em **blocos** (cartões arredondados, inspirado em painéis de dashboard). Um único menu lateral
-  com *Visão geral* no topo e categorias **RESET** recolhíveis (começam fechadas; clique para ver as sub-abas):
+  com *Visão geral* no topo e categorias **GLM** recolhíveis (começam fechadas; clique para ver as sub-abas):
   - *Visão geral* (`MainWindow.Dash.cs`): gráfico de área CPU × GPU (temperatura, carga ou consumo; 1/5/15 min),
-    desempenho do RESET BENCH, tabela de componentes, anéis de RAM/VRAM/disco, eventos recentes e saúde do PC.
+    desempenho do GLM BENCH, tabela de componentes, anéis de RAM/VRAM/disco, eventos recentes e saúde do PC.
   - **GLM INFRA LUFT** · Sistema, Sensores, Placa de vídeo, Discos, Energia, Rede.
-  - **RESET JOGOS** · Biblioteca, FPS estimado, Gargalo, Overlay.
-  - **RESET DESEMPENHO** · Benchmark, Stress test, Overclock.
-  - **RESET FERRAMENTAS** · Otimização, Limpeza, Técnico, Inicialização, Instalar apps, Drivers, Integração.
-  - **RESET MAKER** · Portas COM, Drivers seriais.
+  - **GLM JOGOS** · Biblioteca, FPS estimado, Gargalo, Overlay.
+  - **GLM DESEMPENHO** · Benchmark, Stress test, Overclock.
+  - **GLM FERRAMENTAS** · Otimização, Limpeza, Técnico, Inicialização, Instalar apps, Drivers, Integração.
+  - **GLM MAKER** · Portas COM, Drivers seriais.
 - Botão de **modo escuro/claro** no canto superior direito (`ThemeManager.cs`); a escolha fica salva. O overlay de jogos e os avisos de dispositivo ficam sempre escuros.
 - Leitura ao vivo de temperatura e carga da CPU e da GPU sempre visível no rodapé do menu.
 - Sensores com busca e filtros por tipo (chips); tema em `Theme.xaml`.
@@ -177,21 +177,21 @@ Ao criar uma tag (`git tag v0.12` e `git push --tags`), também sai uma release 
 - ✔ Benchmarks: CPU, GPU, simulação, memória e **disco**
 - ✔ Saúde dos discos (S.M.A.R.T.)
 - ✔ Relatório exportável (HTML/JSON)
-- ✔ RESET OC (limite de energia, clock e verificação de estabilidade)
+- ✔ GLM OC (limite de energia, clock e verificação de estabilidade)
 - ✔ Energia (bateria e fonte) e Rede (latência, perda e velocidade)
-- ✔ RESET INTEGRAÇÃO: iluminação Corsair iCUE, OpenRGB (MSI/Gigabyte/ASUS) e Razer Chroma (primeira versão, em teste)
-- ✔ RESET DRIVER: inventário de drivers, NVIDIA (verifica a versão, baixa, confere a assinatura e abre o instalador), AMD/ASUS/MSI/Gigabyte pela página oficial, Windows Update e backup (`DriverManager.cs`, primeira versão, em teste)
-- ✔ RESET JOGOS: inicializador com detecção de jogos, perfil por jogo e opções de inicialização da Steam (primeira versão, em teste)
+- ✔ GLM INTEGRAÇÃO: iluminação Corsair iCUE, OpenRGB (MSI/Gigabyte/ASUS) e Razer Chroma (primeira versão, em teste)
+- ✔ GLM DRIVER: inventário de drivers, NVIDIA (verifica a versão, baixa, confere a assinatura e abre o instalador), AMD/ASUS/MSI/Gigabyte pela página oficial, Windows Update e backup (`DriverManager.cs`, primeira versão, em teste)
+- ✔ GLM JOGOS: inicializador com detecção de jogos, perfil por jogo e opções de inicialização da Steam (primeira versão, em teste)
 - ✔ Inicialização do Windows: ativar, desativar e remover programas, com desfazer (v0.16)
 - ✔ Abertura rápida: janela na hora, hardware carregado em paralelo (v0.16)
 - ✔ Instalar apps essenciais pós-formatação pelo winget (v0.16)
-- ✔ RESET MAKER: portas COM e drivers seriais CH340/CP210x/FTDI/Prolific/Arduino (v0.16)
+- ✔ GLM MAKER: portas COM e drivers seriais CH340/CP210x/FTDI/Prolific/Arduino (v0.16)
 
 ## Próximas ideias
 - Relatório em CSV e com gráficos
 - Comparar resultados de benchmark entre PCs / histórico de relatórios
 - Leitura direta de SPD / Super I/O
-- RESET INTEGRAÇÃO: perfis salvos, efeitos por jogo, SDKs nativos da MSI/ASUS/Gigabyte se forem liberados
+- GLM INTEGRAÇÃO: perfis salvos, efeitos por jogo, SDKs nativos da MSI/ASUS/Gigabyte se forem liberados
 - Alertas de temperatura, bateria e saúde de disco em segundo plano
 - Versão com instalador e assinatura digital
 
