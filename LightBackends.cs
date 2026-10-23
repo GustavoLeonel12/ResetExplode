@@ -182,7 +182,7 @@ public sealed class OpenRgbBackend : ILightBackend
             _ns.ReadTimeout = 3000;
             _ns.WriteTimeout = 3000;
 
-            Write(0, SetClientName, Encoding.ASCII.GetBytes("RESET EXPLODE\0"));
+            Write(0, SetClientName, Encoding.ASCII.GetBytes("GLM INFRA LUFT\0"));
             Write(0, ReqProtocolVersion, BitConverter.GetBytes(3u));
             uint server;
             try { server = BitConverter.ToUInt32(ReadType(ReqProtocolVersion), 0); }
@@ -293,9 +293,9 @@ public sealed class RazerChromaBackend : ILightBackend
     {
         var body = JsonSerializer.Serialize(new
         {
-            title = "RESET EXPLODE",
-            description = "Controle de iluminação do RESET EXPLODE",
-            author = new { name = "RESET", contact = "https://github.com/GustavoReset/ResetExplode" },
+            title = "GLM INFRA LUFT",
+            description = "Controle de iluminação do GLM INFRA LUFT",
+            author = new { name = "GLM INFRA LUFT", contact = "https://github.com/GustavoLeonel12/ResetExplode" },
             device_supported = Kinds.Select(k => k.Key).ToArray(),
             category = "application",
         });

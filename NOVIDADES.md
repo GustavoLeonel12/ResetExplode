@@ -1,5 +1,7 @@
 ## Novidades da v0.17
 
+**Novo nome: GLM INFRA LUFT** (o programa agora se chama GLMInfraLuft.exe).
+
 **Nova página · RESET FERRAMENTAS › Limpeza**
 - Analisa antes de apagar e mostra quanto cada item ocupa: temporários de todos os usuários (%TEMP%), temporários do Windows,
   cache do Windows Update, Otimização de Entrega, lixeira, relatórios de erro, cache de miniaturas, logs antigos,
