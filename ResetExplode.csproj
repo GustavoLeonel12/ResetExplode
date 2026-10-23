@@ -8,8 +8,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
-    <AssemblyName>GLMInfraLuft</AssemblyName>
-    <Product>GLM INFRA LUFT</Product>
+    <AssemblyName>ResetExplode</AssemblyName>
+    <Product>RESET EXPLODE</Product>
     <Version>0.17.0</Version>
     <!-- Sempre otimizado: o RESET BENCH e os stress tests precisam do JIT otimizado também em Debug -->
     <Optimize>true</Optimize>
