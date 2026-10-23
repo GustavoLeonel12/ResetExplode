@@ -1,10 +1,10 @@
-# RESET EXPLODE — v0.17
+# GLM INFRA LUFT — v0.17
 
-> **Download oficial:** apenas em [github.com/GustavoReset/ResetExplode/releases](https://github.com/GustavoReset/ResetExplode/releases).
-> O app roda como administrador; não use versões baixadas de outros lugares.
+> Baseado no [RESET EXPLODE](https://github.com/GustavoReset/ResetExplode), de GustavoReset, sob a licença [MIT](LICENSE)
+> (o aviso de copyright original continua no arquivo LICENSE).
 >
-> **Contribuições:** este projeto não aceita pull requests. Fique à vontade para fazer um *fork* e modificar a sua própria cópia
-> (licença [MIT](LICENSE): mantenha o aviso de copyright).
+> **Download:** [github.com/GustavoLeonel12/ResetExplode/releases](https://github.com/GustavoLeonel12/ResetExplode/releases).
+> O app roda como administrador; não use versões baixadas de outros lugares.
 
 ## Novidades da v0.17
 - **Limpeza** (RESET FERRAMENTAS): temporários, cache do Windows Update, lixeira, logs, dumps e caches, com análise antes de apagar.
@@ -132,7 +132,7 @@ App WPF (.NET 8) com:
   com *Visão geral* no topo e categorias **RESET** recolhíveis (começam fechadas; clique para ver as sub-abas):
   - *Visão geral* (`MainWindow.Dash.cs`): gráfico de área CPU × GPU (temperatura, carga ou consumo; 1/5/15 min),
     desempenho do RESET BENCH, tabela de componentes, anéis de RAM/VRAM/disco, eventos recentes e saúde do PC.
-  - **RESET EXPLODE** · Sistema, Sensores, Placa de vídeo, Discos, Energia, Rede.
+  - **GLM INFRA LUFT** · Sistema, Sensores, Placa de vídeo, Discos, Energia, Rede.
   - **RESET JOGOS** · Biblioteca, FPS estimado, Gargalo, Overlay.
   - **RESET DESEMPENHO** · Benchmark, Stress test, Overclock.
   - **RESET FERRAMENTAS** · Otimização, Limpeza, Técnico, Inicialização, Instalar apps, Drivers, Integração.
@@ -160,11 +160,11 @@ cd ResetExplode
 dotnet run
 ```
 O app pede privilégio de administrador (necessário para sensores de baixo nível).
-Para levar a outro PC: dê dois cliques em `publicar.bat`. Ele gera `..\ResetExplode-dist\ResetExplode.exe` (arquivo único, com o .NET embutido,
+Para levar a outro PC: dê dois cliques em `publicar.bat`. Ele gera `..\GLMInfraLuft-dist\GLMInfraLuft.exe` (arquivo único, com o .NET embutido,
 sem caminhos do seu usuário) + `LEIA-ME.txt`. No outro PC só é preciso instalar o PawnIO. Rode de novo após cada alteração no código.
 
 ### Baixar a versão mais recente
-A cada push na `main`, o GitHub Actions (`.github/workflows/publicar.yml`) gera o `ResetExplode.exe` e atualiza a release
+A cada push na `main`, o GitHub Actions (`.github/workflows/publicar.yml`) gera o `GLMInfraLuft.exe` e atualiza a release
 **latest** (aba *Releases* do repositório), com o `.exe` e um `.zip`. É só baixar de lá, sem compilar.
 Ao criar uma tag (`git tag v0.12` e `git push --tags`), também sai uma release fixa dessa versão.
 

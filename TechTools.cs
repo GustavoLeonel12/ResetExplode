@@ -47,7 +47,7 @@ public static class TechTools
     /// <summary>Abre um console com o comando rodando (herda o administrador do app) e deixa a janela aberta no final.</summary>
     public static void RunConsole(string title, string command)
     {
-        string script = $"title RESET EXPLODE - {title} & echo {title} & echo. & {command} & echo. & echo ===== Terminado. Pode fechar esta janela. =====";
+        string script = $"title GLM INFRA LUFT - {title} & echo {title} & echo. & {command} & echo. & echo ===== Terminado. Pode fechar esta janela. =====";
         Process.Start(new ProcessStartInfo("cmd.exe", "/k " + script) { UseShellExecute = true });
     }
 
@@ -107,7 +107,7 @@ public static class TechTools
     {
         var (code, output) = await RunHiddenAsync(
             "powershell -NoProfile -NonInteractive -Command \"Enable-ComputerRestore -Drive $env:SystemDrive -ErrorAction SilentlyContinue; " +
-            "Checkpoint-Computer -Description 'RESET EXPLODE - Técnico' -RestorePointType MODIFY_SETTINGS -ErrorAction Stop\"");
+            "Checkpoint-Computer -Description 'GLM INFRA LUFT - Técnico' -RestorePointType MODIFY_SETTINGS -ErrorAction Stop\"");
         return code == 0 ? "Ponto de restauração criado."
              : "Não foi possível criar o ponto de restauração (o Windows só permite um a cada 24 h, ou a proteção do sistema está desligada).\n" + output;
     }

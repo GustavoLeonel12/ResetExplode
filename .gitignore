@@ -3,6 +3,7 @@ bin/
 obj/
 publish/
 ResetExplode-dist/
+GLMInfraLuft-dist/
 *.exe
 *.dll
 *.pdb
