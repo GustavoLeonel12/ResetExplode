@@ -47,13 +47,13 @@ public static class AppInstaller
 {
     public static List<InstallableApp> Catalog() => new()
     {
-        new() { Name = "Steam", Description = "Loja e biblioteca de jogos da Valve.", WingetId = "Valve.Steam", DisplayPrefix = "Steam" },
         new() { Name = "Google Chrome", Description = "Navegador do Google.", WingetId = "Google.Chrome", DisplayPrefix = "Google Chrome" },
-        new() { Name = "Discord", Description = "Chat de voz e texto para jogar com os amigos.", WingetId = "Discord.Discord", DisplayPrefix = "Discord" },
+        new() { Name = "Firefox", Description = "Navegador da Mozilla (versão em português).", WingetId = "Mozilla.Firefox.pt-BR", DisplayPrefix = "Mozilla Firefox" },
+        new() { Name = "Adobe Acrobat Reader", Description = "Leitor de PDF gratuito da Adobe (só o leitor, sem outros apps da Adobe).", WingetId = "Adobe.Acrobat.Reader.64-bit", DisplayPrefix = "Adobe Acrobat" },
+        new() { Name = "AnyDesk", Description = "Acesso remoto para dar ou receber suporte.", WingetId = "AnyDesk.AnyDesk", DisplayPrefix = "AnyDesk" },
+        new() { Name = "TeamViewer", Description = "Acesso remoto e suporte a distância.", WingetId = "TeamViewer.TeamViewer", DisplayPrefix = "TeamViewer" },
+        new() { Name = "WinRAR", Description = "Compactador (zip, rar, 7z). Abre e cria arquivos compactados; pago após o teste.", WingetId = "RARLab.WinRAR", DisplayPrefix = "WinRAR" },
         new() { Name = "Lightshot", Description = "Captura de tela rápida com a tecla Print Screen.", WingetId = "Skillbrains.Lightshot", DisplayPrefix = "Lightshot" },
-        new() { Name = "7-Zip", Description = "Compactador gratuito (zip, rar, 7z). Abre e cria arquivos compactados.", WingetId = "7zip.7zip", DisplayPrefix = "7-Zip" },
-        new() { Name = "WinRAR", Description = "Compactador clássico (pago após o teste). Escolha ele ou o 7-Zip.", WingetId = "RARLab.WinRAR", DisplayPrefix = "WinRAR", PreSelect = false },
-        new() { Name = "VLC", Description = "Player de vídeo e música que abre qualquer formato.", WingetId = "VideoLAN.VLC", DisplayPrefix = "VLC media player" },
     };
 
     public static string WingetPath =>

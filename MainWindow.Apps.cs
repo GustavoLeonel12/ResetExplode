@@ -57,13 +57,6 @@ public partial class MainWindow
 
         var sel = _installApps.Where(a => a.Selected && !a.Installed).ToList();
         if (sel.Count == 0) { AppsStatus.Text = "Nenhum app selecionado."; return; }
-        if (sel.Any(a => a.WingetId == "RARLab.WinRAR") && sel.Any(a => a.WingetId == "7zip.7zip"))
-        {
-            var r = MessageBox.Show("WinRAR e 7-Zip fazem a mesma coisa. Instalar os dois mesmo assim?", "Instalar apps",
-                                    MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (r != MessageBoxResult.Yes) return;
-        }
-
         _appsBusy = true; _appsStop = false;
         BtnAppsInstall.Content = "PARAR";
         foreach (var a in sel) a.Status = "Na fila.";
