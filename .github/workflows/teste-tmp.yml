@@ -1,0 +1,23 @@
+name: Pre-release de teste (temporario)
+on:
+  push:
+    branches: ['claude/project-thread-22omb2']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet publish ResetExplode.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o dist -nologo
+      - name: Criar pre-release "teste"
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete teste --cleanup-tag --yes 2>$null
+          $global:LASTEXITCODE = 0
+          gh release create teste dist/GLMInfraLuft.exe --target $env:GITHUB_SHA --prerelease --latest=false --title "GLM INFRA LUFT (teste do PR #4)" --notes "Versão de teste: sem GLM JOGOS e com os novos instaladores. Não é a versão oficial."
