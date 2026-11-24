@@ -322,7 +322,7 @@ public static class DriverManager
         return $"Instalador {g.Latest} aberto (assinatura {g.Vendor} válida). {restore} Siga o instalador; a tela pode piscar durante a instalação.";
     }
 
-    private static void VerifyPublisher(string path, string publisher)
+    internal static void VerifyPublisher(string path, string publisher)
     {
         int trust = CorsairSdkInstaller.WinVerifyTrustFile(path);
         if (trust != 0)

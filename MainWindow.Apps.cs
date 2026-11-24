@@ -57,6 +57,12 @@ public partial class MainWindow
 
         var sel = _installApps.Where(a => a.Selected && !a.Installed).ToList();
         if (sel.Count == 0) { AppsStatus.Text = "Nenhum app selecionado."; return; }
+        if (sel.Count(x => x.OfficeProduct != null) > 1)
+        {
+            MessageBox.Show("Escolha só uma edição do Office (Professional Plus ou Home & Business): a licença do cliente ativa apenas a edição comprada.",
+                            "Instalar apps", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
         _appsBusy = true; _appsStop = false;
         BtnAppsInstall.Content = "PARAR";
         foreach (var a in sel) a.Status = "Na fila.";
@@ -68,7 +74,7 @@ public partial class MainWindow
         {
             if (_appsStop) { app.Status = "Não instalado (parado)."; continue; }
             AppsStatus.Text = $"Instalando {app.Name} ({done + 1} de {sel.Count})… baixando do site oficial, pode levar alguns minutos.";
-            app.Status = "Instalando…";
+            app.Status = app.OfficeProduct != null ? "Baixando e instalando o Office (uns 3 GB, pode levar de 10 a 30 minutos)…" : "Instalando…";
             try
             {
                 var (success, msg) = await AppInstaller.InstallAsync(app, CancellationToken.None);
