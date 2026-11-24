@@ -56,9 +56,9 @@ public static class AppInstaller
         new() { Name = "AnyDesk", Description = "Acesso remoto para dar ou receber suporte.", WingetId = "AnyDesk.AnyDesk", DisplayPrefix = "AnyDesk" },
         new() { Name = "TeamViewer", Description = "Acesso remoto e suporte a distância.", WingetId = "TeamViewer.TeamViewer", DisplayPrefix = "TeamViewer" },
         new() { Name = "WinRAR", Description = "Compactador (zip, rar, 7z). Abre e cria arquivos compactados; pago após o teste.", WingetId = "RARLab.WinRAR", DisplayPrefix = "WinRAR" },
-        new() { Name = "Office Professional Plus 2024", Description = "Word, Excel, PowerPoint, Outlook, Access e OneNote. Só o instalador oficial da Microsoft: sem chave nem ativação (ative depois com a licença do cliente).",
+        new() { Name = "Office Professional Plus 2024", Description = "Word, Excel, PowerPoint, Outlook, Access e OneNote. Instalador oficial da Microsoft. Para ativar sozinho, digite a chave do cliente no campo abaixo da lista.",
                 OfficeProduct = "ProPlus2024Retail", DisplayPrefix = "Microsoft Office Professional Plus 2024", PreSelect = false },
-        new() { Name = "Office Home & Business 2024", Description = "Word, Excel, PowerPoint e Outlook. Só o instalador oficial da Microsoft: sem chave nem ativação (ative depois com a licença do cliente).",
+        new() { Name = "Office Home & Business 2024", Description = "Word, Excel, PowerPoint e Outlook. Instalador oficial da Microsoft. Para ativar sozinho, digite a chave do cliente no campo abaixo da lista.",
                 OfficeProduct = "HomeBusiness2024Retail", DisplayPrefix = "Microsoft Office Home and Business 2024", PreSelect = false },
         new() { Name = "Lightshot", Description = "Captura de tela rápida com a tecla Print Screen.", WingetId = "Skillbrains.Lightshot", DisplayPrefix = "Lightshot" },
     };
@@ -104,9 +104,9 @@ public static class AppInstaller
     }
 
     /// <summary>Instala um app em silêncio. Retorna (ok, mensagem curta).</summary>
-    public static async Task<(bool Ok, string Message)> InstallAsync(InstallableApp app, CancellationToken ct, bool upgrade = false)
+    public static async Task<(bool Ok, string Message)> InstallAsync(InstallableApp app, CancellationToken ct, bool upgrade = false, string? officeKey = null)
     {
-        if (app.OfficeProduct != null) return await InstallOfficeAsync(app.OfficeProduct, ct);
+        if (app.OfficeProduct != null) return await InstallOfficeAsync(app.OfficeProduct, officeKey, ct);
 
         var psi = new ProcessStartInfo(WingetPath,
             $"{(upgrade ? "upgrade" : "install")} --id {app.WingetId} -e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity")
@@ -161,10 +161,10 @@ public static class AppInstaller
 
     /// <summary>
     /// Baixa o setup.exe oficial do ODT (confere a assinatura da Microsoft) e instala o produto em silêncio,
-    /// 64 bits, no idioma do Windows. A configuração não tem chave de produto nem ativação: o Office fica
-    /// instalado e pede a licença ao abrir.
+    /// 64 bits, no idioma do Windows. Sem chave, o Office fica instalado e pede a licença ao abrir. Com a chave do
+    /// cliente, ela vai no PIDKEY e o próprio instalador ativa (AUTOACTIVATE); o XML com a chave é apagado no fim.
     /// </summary>
-    private static async Task<(bool Ok, string Message)> InstallOfficeAsync(string productId, CancellationToken ct)
+    private static async Task<(bool Ok, string Message)> InstallOfficeAsync(string productId, string? key, CancellationToken ct)
     {
         string dir = Path.Combine(Path.GetTempPath(), "ResetExplode", "office");
         Directory.CreateDirectory(dir);
@@ -185,26 +185,98 @@ public static class AppInstaller
         DriverManager.VerifyPublisher(setup, "Microsoft Corporation");
 
         string xml = Path.Combine(dir, $"{productId}.xml");
-        File.WriteAllText(xml, $"""
-            <Configuration>
-              <Add OfficeClientEdition="64" Channel="Current">
-                <Product ID="{productId}">
-                  <Language ID="MatchOS" Fallback="pt-br" />
-                </Product>
-              </Add>
-              <Display Level="None" AcceptEULA="TRUE" />
-            </Configuration>
-            """, Encoding.UTF8);
+        string pid = key != null ? $" PIDKEY=\"{key}\"" : "";
+        string autoAct = key != null ? "\n  <Property Name=\"AUTOACTIVATE\" Value=\"1\" />" : "";
+        int exit;
+        try
+        {
+            File.WriteAllText(xml, $"""
+                <Configuration>
+                  <Add OfficeClientEdition="64" Channel="Current">
+                    <Product ID="{productId}"{pid}>
+                      <Language ID="MatchOS" Fallback="pt-br" />
+                    </Product>
+                  </Add>
+                  <Display Level="None" AcceptEULA="TRUE" />{autoAct}
+                </Configuration>
+                """, Encoding.UTF8);
 
-        var psi = new ProcessStartInfo(setup, $"/configure \"{xml}\"") { UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = dir };
-        using var p = Process.Start(psi) ?? throw new InvalidOperationException("Não foi possível iniciar o instalador do Office.");
-        try { await p.WaitForExitAsync(ct); }
-        catch (OperationCanceledException) { try { p.Kill(true); } catch { } throw; }
+            var psi = new ProcessStartInfo(setup, $"/configure \"{xml}\"") { UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = dir };
+            using var p = Process.Start(psi) ?? throw new InvalidOperationException("Não foi possível iniciar o instalador do Office.");
+            try { await p.WaitForExitAsync(ct); }
+            catch (OperationCanceledException) { try { p.Kill(true); } catch { } throw; }
+            exit = p.ExitCode;
+        }
+        finally { try { File.Delete(xml); } catch { } } // não deixa a chave no disco
 
-        if (OfficeInstalled(productId)) return (true, "Instalado. Ao abrir o Word ou o Excel, entre com a conta ou a chave do cliente para ativar.");
-        return (false, p.ExitCode == 0
-            ? "O instalador terminou, mas o Office não apareceu como instalado. Tente de novo."
-            : $"Falhou (código 0x{p.ExitCode:X8}). Feche outros instaladores do Office e tente de novo.");
+        if (!OfficeInstalled(productId))
+            return (false, exit == 0
+                ? "O instalador terminou, mas o Office não apareceu como instalado. Tente de novo."
+                : $"Falhou (código 0x{exit:X8}). Feche outros instaladores do Office e tente de novo.");
+        if (key == null) return (true, "Instalado. Ao abrir o Word ou o Excel, entre com a conta ou a chave do cliente para ativar.");
+
+        // O AUTOACTIVATE às vezes ainda está terminando; se não ativou, tenta pelo OSPP com a mesma chave.
+        if (await OfficeLicensedAsync(ct)) return (true, "Instalado e ativado com a chave do cliente.");
+        var (ok, msg) = await ActivateOfficeAsync(key, ct);
+        return (true, ok ? "Instalado e ativado com a chave do cliente." : $"Instalado, mas a ativação não concluiu: {msg}");
+    }
+
+    // ---------------- Ativação do Office (chave do cliente, pela Microsoft) ----------------
+
+    /// <summary>Chave no formato XXXXX-XXXXX-XXXXX-XXXXX-XXXXX (aceita sem hífens); null se inválida.</summary>
+    public static string? NormalizeOfficeKey(string? text)
+    {
+        string k = new string((text ?? "").ToUpperInvariant().Where(char.IsAsciiLetterOrDigit).ToArray());
+        if (k.Length != 25) return null;
+        return string.Join("-", Enumerable.Range(0, 5).Select(i => k.Substring(i * 5, 5)));
+    }
+
+    private static string? OsppPath()
+    {
+        foreach (var pf in new[] { Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                                   Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) })
+        {
+            string f = Path.Combine(pf, @"Microsoft Office\Office16\OSPP.VBS");
+            if (File.Exists(f)) return f;
+        }
+        return null;
+    }
+
+    /// <summary>Roda o OSPP.VBS (script oficial de licenciamento que vem com o Office). A saída não é registrada.</summary>
+    private static async Task<(int Exit, string Output)> OsppAsync(string ospp, string args, CancellationToken ct)
+    {
+        string cscript = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cscript.exe");
+        var psi = new ProcessStartInfo(cscript, $"//nologo \"{ospp}\" {args}")
+        {
+            UseShellExecute = false, CreateNoWindow = true,
+            RedirectStandardOutput = true, RedirectStandardError = true,
+        };
+        using var p = Process.Start(psi) ?? throw new InvalidOperationException("Não foi possível iniciar o OSPP.");
+        var outTask = p.StandardOutput.ReadToEndAsync(ct);
+        var errTask = p.StandardError.ReadToEndAsync(ct);
+        await p.WaitForExitAsync(ct);
+        return (p.ExitCode, await outTask + await errTask);
+    }
+
+    private static async Task<bool> OfficeLicensedAsync(CancellationToken ct)
+    {
+        if (OsppPath() is not string ospp) return false;
+        var (_, output) = await OsppAsync(ospp, "/dstatus", ct);
+        return output.Contains("---LICENSED---", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Instala a chave do cliente no Office já instalado e ativa pela internet (OSPP /inpkey + /act).</summary>
+    public static async Task<(bool Ok, string Message)> ActivateOfficeAsync(string key, CancellationToken ct = default)
+    {
+        if (OsppPath() is not string ospp) return (false, "Nenhum Office 2016 ou mais novo foi encontrado neste PC.");
+        var (inExit, inOut) = await OsppAsync(ospp, $"/inpkey:{key}", ct);
+        if (inExit != 0 || inOut.Contains("ERROR", StringComparison.OrdinalIgnoreCase))
+            return (false, "A Microsoft recusou a chave (inválida ou de outra edição do Office).");
+        var (_, actOut) = await OsppAsync(ospp, "/act", ct);
+        if (await OfficeLicensedAsync(ct)) return (true, "Office ativado.");
+        return (false, actOut.Contains("0xC004C008", StringComparison.OrdinalIgnoreCase)
+            ? "A chave já foi usada no limite de ativações. O cliente pode ativar pelo telefone ou pela conta Microsoft."
+            : "A chave foi aceita, mas a ativação não concluiu. Confira a internet e tente ATIVAR de novo.");
     }
 
     /// <summary>Última linha útil da saída do winget (sem as barras de progresso).</summary>

@@ -63,7 +63,15 @@ public partial class MainWindow
                             "Instalar apps", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
+        string? officeKey = null;
+        if (sel.Any(x => x.OfficeProduct != null) && OfficeKeyBox.Text.Trim().Length > 0)
+        {
+            officeKey = AppInstaller.NormalizeOfficeKey(OfficeKeyBox.Text);
+            if (officeKey == null) { OfficeKeyStatus.Text = "Chave inválida: são 25 letras e números (XXXXX-XXXXX-XXXXX-XXXXX-XXXXX)."; return; }
+        }
+
         _appsBusy = true; _appsStop = false;
+        BtnOfficeActivate.IsEnabled = false;
         BtnAppsInstall.Content = "PARAR";
         foreach (var a in sel) a.Status = "Na fila.";
         int ok = 0, done = 0;
@@ -77,7 +85,7 @@ public partial class MainWindow
             app.Status = app.OfficeProduct != null ? "Baixando e instalando o Office (uns 3 GB, pode levar de 10 a 30 minutos)…" : "Instalando…";
             try
             {
-                var (success, msg) = await AppInstaller.InstallAsync(app, CancellationToken.None);
+                var (success, msg) = await AppInstaller.InstallAsync(app, CancellationToken.None, officeKey: officeKey);
                 app.Status = msg;
                 if (success) { ok++; app.Selected = false; }
                 else failed.Add(app.Name);
@@ -89,10 +97,29 @@ public partial class MainWindow
 
         AppInstaller.RefreshInstalled(_installApps);
         _appsBusy = false;
+        BtnOfficeActivate.IsEnabled = true;
+        if (officeKey != null) OfficeKeyBox.Clear(); // não deixa a chave na tela
         BtnAppsInstall.Content = "INSTALAR SELECIONADOS";
         BtnAppsInstall.IsEnabled = true;
         AppsStatus.Text = $"{ok} de {sel.Count} instalados." +
                           (failed.Count > 0 ? $" Falharam: {string.Join(", ", failed)} (veja o motivo na lista)." : "") +
                           (_appsStop ? " Instalação interrompida." : "");
+    }
+
+    private async void BtnOfficeActivate_Click(object sender, RoutedEventArgs e)
+    {
+        if (_appsBusy) return;
+        string? key = AppInstaller.NormalizeOfficeKey(OfficeKeyBox.Text);
+        if (key == null) { OfficeKeyStatus.Text = "Chave inválida: são 25 letras e números (XXXXX-XXXXX-XXXXX-XXXXX-XXXXX)."; return; }
+        BtnOfficeActivate.IsEnabled = false;
+        OfficeKeyStatus.Text = "Ativando com a Microsoft…";
+        try
+        {
+            var (ok, msg) = await AppInstaller.ActivateOfficeAsync(key);
+            OfficeKeyStatus.Text = msg;
+            if (ok) OfficeKeyBox.Clear();
+        }
+        catch (Exception ex) { OfficeKeyStatus.Text = $"Falhou: {ex.Message}"; }
+        finally { BtnOfficeActivate.IsEnabled = true; }
     }
 }

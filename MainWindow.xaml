@@ -2004,6 +2004,27 @@
                                         Padding="14,7" Margin="0,12,0,0" HorizontalAlignment="Left" Visibility="Collapsed" Click="BtnAppsStore_Click"/>
                             </StackPanel>
                         </Border>
+
+                        <Border Style="{StaticResource CardBorder}" Margin="0,16,0,0">
+                            <StackPanel>
+                                <TextBlock Text="OFFICE · CHAVE DO CLIENTE (OPCIONAL)" Style="{StaticResource Label}" Margin="0,0,0,6"/>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10">
+                                    Digite a chave de produto que o cliente comprou (25 caracteres). Ao instalar o Office 2024 acima, ela vai junto e o Office
+                                    é ativado sozinho pela Microsoft. Se o Office já estiver instalado, use ATIVAR. A chave não é salva em lugar nenhum.
+                                </TextBlock>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="OfficeKeyBox" Tag="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" CharacterCasing="Upper" MaxLength="29"
+                                             FontFamily="{StaticResource Mono}" MaxWidth="360" HorizontalAlignment="Left" Width="360"/>
+                                    <Button x:Name="BtnOfficeActivate" Grid.Column="1" Style="{StaticResource OutlineButton}" Content="ATIVAR OFFICE INSTALADO"
+                                            Padding="14,7" Margin="12,0,0,0" VerticalAlignment="Center" Click="BtnOfficeActivate_Click"/>
+                                </Grid>
+                                <TextBlock x:Name="OfficeKeyStatus" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0" Foreground="{DynamicResource Muted}"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </ScrollViewer>
 
