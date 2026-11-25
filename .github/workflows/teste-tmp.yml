@@ -2,6 +2,7 @@ name: Pre-release de teste (temporario)
 on:
   push:
     branches: ['claude/project-thread-22omb2']
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
