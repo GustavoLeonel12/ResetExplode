@@ -63,10 +63,86 @@ public static class AppInstaller
         new() { Name = "Lightshot", Description = "Captura de tela rápida com a tecla Print Screen.", WingetId = "Skillbrains.Lightshot", DisplayPrefix = "Lightshot" },
     };
 
-    public static string WingetPath =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Microsoft\WindowsApps\winget.exe");
+    /// <summary>
+    /// winget.exe: o atalho em %LOCALAPPDATA%\Microsoft\WindowsApps do usuário atual ou, se não houver (ex.: o app foi
+    /// aberto como administrador com outra conta), o que estiver no PATH.
+    /// </summary>
+    public static string? WingetPath => _wingetPath ??= FindWinget();
+    private static string? _wingetPath;
 
-    public static bool WingetAvailable => File.Exists(WingetPath);
+    private static string? FindWinget()
+    {
+        string alias = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Microsoft\WindowsApps\winget.exe");
+        if (File.Exists(alias)) return alias;
+        foreach (var dir in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';', StringSplitOptions.RemoveEmptyEntries))
+        {
+            try { string f = Path.Combine(dir.Trim(), "winget.exe"); if (File.Exists(f)) return f; } catch { }
+        }
+        return null;
+    }
+
+    public static bool WingetAvailable => WingetPath != null;
+
+    /// <summary>Log da última instalação (saída completa do winget/Office), para entender uma falha. Nunca contém a chave do Office.</summary>
+    public static string LogPath => Path.Combine(AppSettings.Folder, "instalar-apps.log");
+
+    /// <summary>Começa um log novo a cada rodada de instalação.</summary>
+    public static void ResetLog() { try { File.Delete(LogPath); } catch { } }
+
+    private static void Log(string text)
+    {
+        try
+        {
+            Directory.CreateDirectory(AppSettings.Folder);
+            File.AppendAllText(LogPath, $"[{DateTime.Now:dd/MM/yyyy HH:mm:ss}] {text.TrimEnd()}{Environment.NewLine}{Environment.NewLine}", Encoding.UTF8);
+        }
+        catch { }
+    }
+
+    /// <summary>Roda o winget e devolve (código de saída, saída completa).</summary>
+    private static async Task<(int Exit, string Output)> RunWingetAsync(string args, CancellationToken ct)
+    {
+        var psi = new ProcessStartInfo(WingetPath ?? "winget.exe", args)
+        {
+            UseShellExecute = false, CreateNoWindow = true,
+            RedirectStandardOutput = true, RedirectStandardError = true,
+            StandardOutputEncoding = Encoding.UTF8, StandardErrorEncoding = Encoding.UTF8,
+        };
+        using var p = Process.Start(psi) ?? throw new InvalidOperationException("Não foi possível iniciar o winget.");
+        var outTask = p.StandardOutput.ReadToEndAsync(ct);
+        var errTask = p.StandardError.ReadToEndAsync(ct);
+        try { await p.WaitForExitAsync(ct); }
+        catch (OperationCanceledException) { try { p.Kill(true); } catch { } throw; }
+        return (p.ExitCode, await outTask + await errTask);
+    }
+
+    private static bool _wingetReady;
+    private static bool _supportsDisableInteractivity = true;
+
+    /// <summary>
+    /// Uma vez por sessão: lê a versão do winget (o --disable-interactivity só existe a partir da 1.4) e atualiza o
+    /// catálogo "winget". Num PC recém-formatado o catálogo ainda não foi baixado e toda instalação falha sem isso.
+    /// </summary>
+    private static async Task PrepareWingetAsync(CancellationToken ct)
+    {
+        if (_wingetReady) return;
+        try
+        {
+            var (_, ver) = await RunWingetAsync("--version", ct);
+            Log($"winget {ver.Trim()} em {WingetPath}");
+            var m = System.Text.RegularExpressions.Regex.Match(ver, @"v?(\d+)\.(\d+)");
+            if (m.Success)
+            {
+                int major = int.Parse(m.Groups[1].Value), minor = int.Parse(m.Groups[2].Value);
+                _supportsDisableInteractivity = major > 1 || (major == 1 && minor >= 4);
+            }
+            var (code, upd) = await RunWingetAsync("source update --name winget", ct);
+            if (code != 0) Log($"source update: 0x{code:X8}\n{upd}");
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex) { Log($"Preparar winget: {ex.Message}"); }
+        _wingetReady = true;
+    }
 
     /// <summary>Nomes em "Aplicativos instalados" (máquina 64/32 bits e usuário atual).</summary>
     public static HashSet<string> InstalledNames()
@@ -108,29 +184,41 @@ public static class AppInstaller
     {
         if (app.OfficeProduct != null) return await InstallOfficeAsync(app.OfficeProduct, officeKey, ct);
 
-        var psi = new ProcessStartInfo(WingetPath,
-            $"{(upgrade ? "upgrade" : "install")} --id {app.WingetId} -e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity")
-        {
-            UseShellExecute = false, CreateNoWindow = true,
-            RedirectStandardOutput = true, RedirectStandardError = true,
-            StandardOutputEncoding = Encoding.UTF8, StandardErrorEncoding = Encoding.UTF8,
-        };
-        using var p = Process.Start(psi) ?? throw new InvalidOperationException("Não foi possível iniciar o winget.");
-        var outTask = p.StandardOutput.ReadToEndAsync(ct);
-        var errTask = p.StandardError.ReadToEndAsync(ct);
-        try { await p.WaitForExitAsync(ct); }
-        catch (OperationCanceledException) { try { p.Kill(true); } catch { } throw; }
-        string output = await outTask + await errTask;
+        if (!WingetAvailable) return (false, "O winget não foi encontrado neste PC (veja o botão da Microsoft Store abaixo da lista).");
+        await PrepareWingetAsync(ct);
 
-        return p.ExitCode switch
+        // --source winget: sem ele o winget também consulta a Microsoft Store, e quando a loja não responde
+        // (comum em PC recém-formatado ou rodando como administrador) a instalação inteira falha.
+        string args = $"{(upgrade ? "upgrade" : "install")} --id {app.WingetId} --exact --source winget --silent " +
+                      "--accept-package-agreements --accept-source-agreements" + (_supportsDisableInteractivity ? " --disable-interactivity" : "");
+        var (exit, output) = await RunWingetAsync(args, ct);
+        Log($"{app.Name}: winget {args}\ncódigo 0x{exit:X8}\n{Clean(output)}");
+
+        switch (exit)
         {
-            0 => (true, "Instalado."),
-            unchecked((int)0x8A15002B) or unchecked((int)0x8A150061) => (true, "Já estava instalado."),
+            case 0: return (true, "Instalado.");
+            case unchecked((int)0x8A15002B): case unchecked((int)0x8A150061): return (true, "Já estava instalado.");
+            case unchecked((int)0x8A150109): return (true, "Instalado. Reinicie o PC para terminar.");
+        }
+        // Alguns instaladores devolvem código de erro mesmo instalando: confere em "Aplicativos instalados".
+        if (!upgrade && !string.IsNullOrEmpty(app.DisplayPrefix)
+            && InstalledNames().Any(n => n.StartsWith(app.DisplayPrefix, StringComparison.OrdinalIgnoreCase)))
+            return (true, "Instalado.");
+
+        return exit switch
+        {
             unchecked((int)0x8A150014) => (false, "Pacote não encontrado no winget."),
-            unchecked((int)0x8A150008) => (false, "Falha no download: confira a internet e tente de novo."),
-            _ => (false, $"Falhou (código 0x{p.ExitCode:X8}). {LastLine(output)}".Trim()),
+            unchecked((int)0x8A150008) or unchecked((int)0x8A150007) => (false, "Falha no download: confira a internet e tente de novo."),
+            unchecked((int)0x8A15000F) or unchecked((int)0x8A150044) => (false, "O catálogo do winget não respondeu. Confira a internet e tente de novo."),
+            unchecked((int)0x8A150101) => (false, "O programa está aberto. Feche-o e tente de novo."),
+            _ => (false, $"Falhou (código 0x{exit:X8}). {LastLine(output)}".Trim() + " Detalhes no log."),
         };
     }
+
+    /// <summary>Saída sem as linhas de barra de progresso.</summary>
+    private static string Clean(string output) => string.Join("\n",
+        output.Split('\n', '\r').Select(l => l.Trim())
+              .Where(l => l.Length > 3 && !l.All(c => "-\\|/█▒ ".Contains(c)) && !l.Contains("KB /") && !l.Contains("MB /")));
 
     // ---------------- Office (Ferramenta de Implantação do Office) ----------------
 
@@ -180,6 +268,7 @@ public static class AppInstaller
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException)
         {
+            Log($"{productId}: download do ODT falhou: {ex.Message}");
             return (false, $"Falha no download da Ferramenta de Implantação do Office: {ex.Message}");
         }
         DriverManager.VerifyPublisher(setup, "Microsoft Corporation");
@@ -208,6 +297,8 @@ public static class AppInstaller
             exit = p.ExitCode;
         }
         finally { try { File.Delete(xml); } catch { } } // não deixa a chave no disco
+        Log($"{productId}: ODT /configure terminou com 0x{exit:X8} (chave {(key != null ? "informada" : "não informada")}); " +
+            $"instalado = {OfficeInstalled(productId)}. Log do Office em %TEMP% (arquivos {Environment.MachineName}-*.log).");
 
         if (!OfficeInstalled(productId))
             return (false, exit == 0

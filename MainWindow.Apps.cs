@@ -23,7 +23,7 @@ public partial class MainWindow
 
         bool winget = AppInstaller.WingetAvailable;
         BtnAppsStore.Visibility = winget ? Visibility.Collapsed : Visibility.Visible;
-        BtnAppsInstall.IsEnabled = winget;
+        BtnAppsInstall.IsEnabled = true; // o Office não depende do winget
         int installed = _installApps.Count(a => a.Installed);
         AppsStatus.Text = winget
             ? $"{installed} de {_installApps.Count} já instalados. Marque o que quer e clique em INSTALAR SELECIONADOS."
@@ -70,6 +70,7 @@ public partial class MainWindow
             if (officeKey == null) { OfficeKeyStatus.Text = "Chave inválida: são 25 letras e números (XXXXX-XXXXX-XXXXX-XXXXX-XXXXX)."; return; }
         }
 
+        AppInstaller.ResetLog();
         _appsBusy = true; _appsStop = false;
         BtnOfficeActivate.IsEnabled = false;
         BtnAppsInstall.Content = "PARAR";
@@ -102,7 +103,7 @@ public partial class MainWindow
         BtnAppsInstall.Content = "INSTALAR SELECIONADOS";
         BtnAppsInstall.IsEnabled = true;
         AppsStatus.Text = $"{ok} de {sel.Count} instalados." +
-                          (failed.Count > 0 ? $" Falharam: {string.Join(", ", failed)} (veja o motivo na lista)." : "") +
+                          (failed.Count > 0 ? $" Falharam: {string.Join(", ", failed)} (motivo na lista; detalhes em {AppInstaller.LogPath})." : "") +
                           (_appsStop ? " Instalação interrompida." : "");
     }
 
