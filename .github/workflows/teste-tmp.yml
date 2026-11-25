@@ -19,8 +19,10 @@ jobs:
           $ids = 'Google.Chrome','Mozilla.Firefox.pt-BR','Adobe.Acrobat.Reader.64-bit','AnyDesk.AnyDesk','TeamViewer.TeamViewer','RARLab.WinRAR','Skillbrains.Lightshot','ArduinoSA.IDE.stable'
           $fail = @()
           foreach ($id in $ids) {
-            winget show --id $id --exact --source winget --accept-source-agreements --disable-interactivity | Select-Object -First 3
-            if ($LASTEXITCODE -ne 0) { $fail += "$id (0x{0:X8})" -f $LASTEXITCODE }
+            $out = winget show --id $id --exact --source winget --accept-source-agreements --disable-interactivity
+            $code = $LASTEXITCODE
+            ($out | Select-String '^Found') -join ''
+            if ($code -ne 0) { $fail += ("{0} (0x{1:X8})" -f $id, $code) }
           }
           if ($fail.Count) { Write-Error "Nao encontrados: $($fail -join ', ')"; exit 1 }
       - name: Instalar de verdade (mesmo comando do app)
