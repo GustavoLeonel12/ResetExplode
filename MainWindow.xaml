@@ -222,33 +222,6 @@
                                 </StackPanel>
                             </RadioButton>
                             </StackPanel>
-                            <ToggleButton x:Name="GrpGames" Style="{StaticResource NavGroup}" Content="GLM JOGOS"/>
-                            <StackPanel x:Name="GrpGamesItems" Margin="10,0,0,4" Visibility="{Binding IsChecked, ElementName=GrpGames, Converter={StaticResource BoolVis}}">
-                            <RadioButton x:Name="NavLauncher" Style="{StaticResource NavItem}" Tag="PageLauncher" Checked="Nav_Checked">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE8F1;" FontFamily="{StaticResource Icons}" FontSize="14" Width="28" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Biblioteca" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton x:Name="NavGames" Style="{StaticResource NavItem}" Tag="PageGames" Checked="Nav_Checked">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xEC49;" FontFamily="{StaticResource Icons}" FontSize="14" Width="28" VerticalAlignment="Center"/>
-                                    <TextBlock Text="FPS estimado" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton x:Name="NavBottleneck" Style="{StaticResource NavItem}" Tag="PageBottleneck" Checked="Nav_Checked">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE9D2;" FontFamily="{StaticResource Icons}" FontSize="14" Width="28" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Gargalo" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton x:Name="NavOverlay" Style="{StaticResource NavItem}" Tag="PageOverlay" Checked="Nav_Checked">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE81E;" FontFamily="{StaticResource Icons}" FontSize="14" Width="28" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Overlay" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </RadioButton>
-                            </StackPanel>
                             <ToggleButton x:Name="GrpPerf" Style="{StaticResource NavGroup}" Content="GLM DESEMPENHO"/>
                             <StackPanel x:Name="GrpPerfItems" Margin="10,0,0,4" Visibility="{Binding IsChecked, ElementName=GrpPerf, Converter={StaticResource BoolVis}}">
                             <RadioButton x:Name="NavBench" Style="{StaticResource NavItem}" Tag="PageBench" Checked="Nav_Checked">
@@ -300,6 +273,12 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE719;" FontFamily="{StaticResource Icons}" FontSize="14" Width="28" VerticalAlignment="Center"/>
                                     <TextBlock Text="Instalar apps" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton x:Name="NavDomain" Style="{StaticResource NavItem}" Tag="PageDomain" Checked="Nav_Checked">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE968;" FontFamily="{StaticResource Icons}" FontSize="14" Width="28" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Domínio" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </RadioButton>
                             <RadioButton x:Name="NavDriver" Style="{StaticResource NavItem}" Tag="PageDriver" Checked="Nav_Checked">
@@ -1035,160 +1014,6 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- ===== GLM JOGOS (inicializador) ===== -->
-                <Grid x:Name="PageLauncher" Margin="36,30,36,30" Visibility="Collapsed">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="320"/>
-                        <ColumnDefinition Width="24"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Lista de jogos -->
-                    <Grid Grid.Column="0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Margin="0,0,0,14">
-                            <TextBlock Text="GLM JOGOS" Style="{StaticResource H1}"/>
-                            <TextBlock x:Name="LGameCount" Text="Procurando seus jogos…" Style="{StaticResource Sub}" TextWrapping="Wrap"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="1" Margin="0,0,0,10">
-                            <TextBox x:Name="LGameSearch" Tag="Buscar jogo…" TextChanged="LGameSearch_Changed" Margin="0,0,0,8"/>
-                            <WrapPanel>
-                                <Button x:Name="BtnScanGames" Style="{StaticResource OutlineButton}" Content="ATUALIZAR LISTA" Padding="14,8" Margin="0,0,8,0" Click="BtnScanGames_Click"/>
-                                <Button Style="{StaticResource OutlineButton}" Content="+ ADICIONAR .EXE" Padding="14,8" Click="BtnAddExe_Click"/>
-                            </WrapPanel>
-                        </StackPanel>
-                        <ListBox x:Name="LGameList" Grid.Row="2" ItemContainerStyle="{StaticResource ListNavItem}" SelectionChanged="LGameList_Changed">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Name}" FontSize="14" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Text="{Binding Subtitle}" FontSize="11" Opacity="0.6"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Grid>
-
-                    <!-- Detalhes do jogo -->
-                    <TextBlock x:Name="LEmpty" Grid.Column="2" Text="Escolha um jogo na lista." Foreground="{DynamicResource Muted}" VerticalAlignment="Top" Margin="0,60,0,0"/>
-                    <ScrollViewer x:Name="LDetail" Grid.Column="2" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="0,0,6,0">
-                            <Grid Margin="0,0,0,6">
-                                <StackPanel Margin="0,0,200,0">
-                                    <TextBlock x:Name="LTitle" Style="{StaticResource H1}" TextWrapping="Wrap"/>
-                                    <TextBlock x:Name="LSub" Style="{StaticResource Sub}" TextWrapping="Wrap"/>
-                                </StackPanel>
-                                <Button x:Name="BtnPlay" Style="{StaticResource PrimaryButton}" Content="JOGAR" Padding="40,14" FontSize="16"
-                                        HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnPlay_Click"/>
-                            </Grid>
-                            <TextBlock x:Name="LStatus" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,16"/>
-
-                            <!-- Desempenho -->
-                            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
-                                <StackPanel>
-                                    <TextBlock Text="DESEMPENHO" Style="{StaticResource Label}"/>
-                                    <TextBlock Text="Prioridade do processo" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,8,0,0"/>
-                                    <WrapPanel x:Name="LPriorityPanel" Margin="0,4,0,10">
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LPriority" Content="Normal" Tag="normal" IsChecked="True" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LPriority" Content="Acima do normal" Tag="above" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LPriority" Content="Alta" Tag="high" Checked="LProfile_Changed"/>
-                                </WrapPanel>
-                                    <CheckBox x:Name="LChkPlan" Content="Plano de energia Alto desempenho enquanto joga (volta ao normal depois)" Margin="0,0,0,10" Click="LProfile_Changed"/>
-                                    <CheckBox x:Name="LChkGpu" Content="Forçar a placa de vídeo dedicada (configuração gráfica do Windows)" Margin="0,0,0,10" Click="LProfile_Changed"/>
-                                    <CheckBox x:Name="LChkFso" Content="Desativar otimizações de tela cheia do Windows" Margin="0,0,0,12" Click="LProfile_Changed"/>
-                                    <TextBlock x:Name="LExeText" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8"/>
-                                    <WrapPanel>
-                                        <Button Style="{StaticResource OutlineButton}" Content="ESCOLHER O .EXE" Padding="14,8" Margin="0,0,8,0" Click="BtnPickExe_Click"/>
-                                        <Button Style="{StaticResource OutlineButton}" Content="PERFIL PARA MAIS FPS" Padding="14,8" Click="BtnRecommended_Click"/>
-                                    </WrapPanel>
-                                    <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0">
-                                        Prioridade e plano de energia valem só durante o jogo. As opções de GPU e tela cheia são gravadas para o .exe do jogo no Windows
-                                        (o programa descobre o .exe sozinho; se errar, escolha o certo).
-                                    </TextBlock>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- Gráficos -->
-                            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
-                                <StackPanel>
-                                    <TextBlock Text="GRÁFICOS (ARGUMENTOS DE INICIALIZAÇÃO)" Style="{StaticResource Label}"/>
-                                    <TextBlock Text="Modo de janela" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,8,0,0"/>
-                                    <WrapPanel x:Name="LModePanel" Margin="0,4,0,10">
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LMode" Content="Padrão do jogo" Tag="default" IsChecked="True" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LMode" Content="Tela cheia" Tag="full" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LMode" Content="Sem bordas" Tag="borderless" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LMode" Content="Janela" Tag="window" Checked="LProfile_Changed"/>
-                                </WrapPanel>
-                                    <TextBlock Text="Resolução" Foreground="{DynamicResource Muted}" FontSize="12"/>
-                                    <WrapPanel x:Name="LResPanel" Margin="0,4,0,10">
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LRes" Content="Padrão" Tag="default" IsChecked="True" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LRes" Content="1280x720" Tag="1280x720" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LRes" Content="1920x1080" Tag="1920x1080" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LRes" Content="2560x1440" Tag="2560x1440" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LRes" Content="3840x2160" Tag="3840x2160" Checked="LProfile_Changed"/>
-                                </WrapPanel>
-                                    <TextBlock Text="Taxa de atualização (Hz)" Foreground="{DynamicResource Muted}" FontSize="12"/>
-                                    <WrapPanel x:Name="LHzPanel" Margin="0,4,0,10">
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LHz" Content="Padrão" Tag="0" IsChecked="True" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LHz" Content="60" Tag="60" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LHz" Content="120" Tag="120" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LHz" Content="144" Tag="144" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LHz" Content="165" Tag="165" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LHz" Content="240" Tag="240" Checked="LProfile_Changed"/>
-                                </WrapPanel>
-                                    <TextBlock Text="Tipo de argumento (depende do jogo)" Foreground="{DynamicResource Muted}" FontSize="12"/>
-                                    <WrapPanel x:Name="LStylePanel" Margin="0,4,0,10">
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LStyle" Content="Source / CS2" Tag="source" IsChecked="True" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LStyle" Content="Unity" Tag="unity" Checked="LProfile_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="LStyle" Content="Unreal" Tag="unreal" Checked="LProfile_Changed"/>
-                                </WrapPanel>
-                                    <TextBlock Text="Extras" Foreground="{DynamicResource Muted}" FontSize="12"/>
-                                    <TextBox x:Name="LExtra" Tag="ex.: -novid -high +fps_max 0" Margin="0,4,0,8" TextChanged="LExtra_Changed"/>
-                                    <WrapPanel x:Name="LExtraPresets" Margin="0,0,0,12"/>
-                                    <TextBlock Text="LINHA FINAL" Style="{StaticResource Label}"/>
-                                    <TextBlock x:Name="LPreview" FontFamily="{StaticResource Mono}" TextWrapping="Wrap" Margin="0,4,0,10"/>
-                                    <StackPanel x:Name="LSteamBox" Visibility="Collapsed">
-                                        <TextBlock x:Name="LSteamNow" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
-                                        <Button x:Name="BtnSteamApply" Style="{StaticResource PrimaryButton}" Content="APLICAR NAS OPÇÕES DA STEAM"
-                                                HorizontalAlignment="Left" Padding="20,9" Click="BtnSteamApply_Click"/>
-                                    </StackPanel>
-                                    <TextBlock x:Name="LGfxNote" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- Programas auxiliares -->
-                            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
-                                <StackPanel>
-                                    <TextBlock Text="PROGRAMAS AUXILIARES" Style="{StaticResource Label}"/>
-                                    <TextBlock Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,10">
-                                        Ferramentas de terceiros que abrem antes do jogo (monitoramento, comandos, mixer de áudio, script...). O GLM JOGOS as abre
-                                        sozinho ao clicar em JOGAR e pode fechá-las junto com o jogo. Nada é escrito nas opções da Steam.
-                                    </TextBlock>
-                                    <ItemsControl x:Name="LHelpers">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Margin="0,0,0,6">
-                                                    <TextBlock Text="{Binding Display}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,90,0"/>
-                                                    <Button Style="{StaticResource OutlineButton}" Content="REMOVER" Padding="10,4" FontSize="11" Tag="{Binding}"
-                                                            HorizontalAlignment="Right" Click="BtnRemoveHelper_Click"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                    <WrapPanel Margin="0,6,0,0">
-                                        <Button Style="{StaticResource OutlineButton}" Content="+ ADICIONAR PROGRAMA" Padding="14,8" Margin="0,0,14,0" Click="BtnAddHelper_Click"/>
-                                        <CheckBox x:Name="LHelperClose" Content="Fechar junto com o jogo" IsChecked="True" VerticalAlignment="Center"/>
-                                    </WrapPanel>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </ScrollViewer>
-                </Grid>
-
                 <!-- ===== SENSORES ===== -->
                 <Grid x:Name="PageSensors" Margin="36,30,36,30" Visibility="Collapsed">
                     <Grid.RowDefinitions>
@@ -1302,299 +1127,6 @@
                         </Border>
                     </Grid>
                 </Grid>
-
-                <!-- ===== JOGOS ===== -->
-                <Grid x:Name="PageGames" Margin="36,30,36,30" Visibility="Collapsed">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <Grid Margin="0,0,0,20">
-                        <StackPanel>
-                            <TextBlock Text="Jogos" Style="{StaticResource H1}"/>
-                            <TextBlock x:Name="GamesSub" Text="FPS esperado no seu PC" Style="{StaticResource Sub}"/>
-                        </StackPanel>
-                        <TextBox x:Name="GameSearch" Width="260" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                 Tag="Buscar jogo…" TextChanged="GameSearch_Changed"/>
-                    </Grid>
-
-                    <!-- Configuração -->
-                    <Border Grid.Row="1" Style="{StaticResource CardBorder}" Margin="0,0,0,14">
-                        <WrapPanel>
-                            <StackPanel Margin="0,0,32,0">
-                                <TextBlock Text="RESOLUÇÃO" Style="{StaticResource Label}"/>
-                                <StackPanel x:Name="GameResPanel" Orientation="Horizontal">
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="GameRes" Content="1080p" Tag="1920x1080" Margin="0,0,6,0" IsChecked="True" Checked="GameOption_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="GameRes" Content="1440p" Tag="2560x1440" Margin="0,0,6,0" Checked="GameOption_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="GameRes" Content="4K" Tag="3840x2160" Margin="0" Checked="GameOption_Changed"/>
-                                </StackPanel>
-                            </StackPanel>
-                            <StackPanel x:Name="GamePresetBox" Margin="0,0,32,0">
-                                <TextBlock Text="GRÁFICOS" Style="{StaticResource Label}"/>
-                                <StackPanel x:Name="GamePresetPanel" Orientation="Horizontal">
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="GamePreset" Content="Baixo" Tag="Baixo" Margin="0,0,6,0" Checked="GameOption_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="GamePreset" Content="Médio" Tag="Médio" Margin="0,0,6,0" Checked="GameOption_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="GamePreset" Content="Alto" Tag="Alto" Margin="0,0,6,0" IsChecked="True" Checked="GameOption_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="GamePreset" Content="Ultra" Tag="Ultra" Margin="0" Checked="GameOption_Changed"/>
-                                </StackPanel>
-                            </StackPanel>
-                            <StackPanel Margin="0,0,32,0">
-                                <TextBlock Text="UPSCALING (DLSS / FSR)" Style="{StaticResource Label}"/>
-                                <StackPanel x:Name="GameUpscalePanel" Orientation="Horizontal">
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="GameUp" Content="Nativo" Tag="Native" Margin="0,0,6,0" IsChecked="True" Checked="GameOption_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="GameUp" Content="Qualidade" Tag="Quality" Margin="0,0,6,0" Checked="GameOption_Changed"/>
-                                    <RadioButton Style="{StaticResource Chip}" GroupName="GameUp" Content="Desempenho" Tag="Performance" Margin="0" Checked="GameOption_Changed"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </WrapPanel>
-                    </Border>
-
-                    <!-- Fonte dos dados -->
-                    <Border Grid.Row="2" Style="{StaticResource CardBorder}" Margin="0,0,0,14" Padding="18,14">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock x:Name="GameSourceTitle" FontWeight="SemiBold"/>
-                                <TextBlock x:Name="GameSourceText" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
-                                <Grid Width="240" Margin="0,0,8,0">
-                                    <PasswordBox x:Name="ApiKeyBox" ToolTip="Chave da API HowManyFPS" PasswordChanged="ApiKeyBox_Changed"/>
-                                    <TextBlock x:Name="ApiKeyHint" Text="Chave da API HowManyFPS" Foreground="{DynamicResource Faint}"
-                                               Margin="11,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
-                                </Grid>
-                                <Button x:Name="BtnApiKey" Style="{StaticResource OutlineButton}" Content="SALVAR CHAVE" Padding="16,8"
-                                        Click="BtnApiKey_Click"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-
-                    <!-- Cartões dos jogos -->
-                    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
-                        <ItemsControl x:Name="GameList">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <UniformGrid Columns="4"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Style="{StaticResource CardBorder}" Margin="0,0,10,10" Padding="16,14">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Text="{Binding Genre}" Foreground="{DynamicResource Faint}" FontSize="11" Margin="0,2,0,10"/>
-                                            <Grid>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding FpsText}" FontFamily="{StaticResource Mono}" FontSize="30"/>
-                                                    <TextBlock Text=" FPS" Foreground="{DynamicResource Muted}" FontSize="12" VerticalAlignment="Bottom" Margin="0,0,0,6"/>
-                                                </StackPanel>
-                                                <TextBlock Text="{Binding Rating}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                           FontSize="10" FontWeight="Bold" Foreground="{DynamicResource Muted}"/>
-                                            </Grid>
-                                            <!-- Barra: escala até 240 FPS -->
-                                            <Grid Height="3" Margin="0,8,0,8" Background="{DynamicResource Line}">
-                                                <Border Background="{DynamicResource Fg}" HorizontalAlignment="Stretch" RenderTransformOrigin="0,0.5">
-                                                    <Border.RenderTransform>
-                                                        <ScaleTransform ScaleX="{Binding Bar}"/>
-                                                    </Border.RenderTransform>
-                                                </Border>
-                                            </Grid>
-                                            <Grid>
-                                                <TextBlock Text="{Binding LowText}" Foreground="{DynamicResource Muted}" FontSize="11"/>
-                                                <TextBlock Text="{Binding Source}" Foreground="{DynamicResource Faint}" FontSize="11" HorizontalAlignment="Right"/>
-                                            </Grid>
-                                            <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource Faint}" FontSize="11" Margin="0,3,0,0"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Grid>
-
-                <!-- ===== GARGALO ===== -->
-                <ScrollViewer x:Name="PageBottleneck" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="36,30,36,30">
-                        <StackPanel Margin="0,0,0,20">
-                            <TextBlock Text="Detector de gargalo" Style="{StaticResource H1}"/>
-                            <TextBlock Text="Descobre o que está limitando o seu FPS: GPU, CPU, memória ou temperatura" Style="{StaticResource Sub}"/>
-                        </StackPanel>
-
-                        <Grid Margin="0,0,0,14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="14"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Equilíbrio teórico -->
-                            <Border Style="{StaticResource CardBorder}">
-                                <StackPanel>
-                                    <TextBlock Text="EQUILÍBRIO DO HARDWARE" Style="{StaticResource Label}"/>
-                                    <Grid Margin="0,4,0,0">
-                                        <TextBlock x:Name="BnCpuName" Foreground="{DynamicResource Muted}"/>
-                                        <TextBlock x:Name="BnGpuName" Foreground="{DynamicResource Muted}" HorizontalAlignment="Right"/>
-                                    </Grid>
-                                    <!-- Escala: esquerda = GPU fraca para a CPU; centro = equilibrado; direita = CPU fraca para a GPU -->
-                                    <Grid Height="22" Margin="0,8,0,4">
-                                        <Border Height="4" Background="{DynamicResource Line}" VerticalAlignment="Center"/>
-                                        <Border Width="2" Height="10" Background="{DynamicResource Faint}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <Canvas x:Name="BnBalanceCanvas" SizeChanged="BnBalanceCanvas_SizeChanged">
-                                            <Ellipse x:Name="BnBalanceDot" Width="14" Height="14" Fill="{DynamicResource Fg}" Canvas.Top="4"/>
-                                        </Canvas>
-                                    </Grid>
-                                    <Grid>
-                                        <TextBlock Text="limita a GPU" Foreground="{DynamicResource Faint}" FontSize="11"/>
-                                        <TextBlock Text="equilibrado" Foreground="{DynamicResource Faint}" FontSize="11" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="limita a CPU" Foreground="{DynamicResource Faint}" FontSize="11" HorizontalAlignment="Right"/>
-                                    </Grid>
-                                    <TextBlock x:Name="BnBalanceText" TextWrapping="Wrap" Margin="0,12,0,0"/>
-                                    <TextBlock Text="Estimativa pelo desempenho relativo típico; o detector ao vivo mostra a realidade de cada jogo."
-                                               Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- Veredito ao vivo -->
-                            <Border x:Name="BnLiveCard" Grid.Column="2" Style="{StaticResource CardBorder}">
-                                <StackPanel>
-                                    <TextBlock x:Name="BnLiveLabel" Text="AGORA" Style="{StaticResource Label}"/>
-                                    <TextBlock x:Name="BnLiveTitle" Text="—" FontSize="24" FontWeight="SemiBold"/>
-                                    <TextBlock x:Name="BnLiveGame" Foreground="{DynamicResource Muted}" Margin="0,4,0,10" TextWrapping="Wrap"/>
-                                    <TextBlock x:Name="BnLiveAdvice" TextWrapping="Wrap" Foreground="{DynamicResource Muted}"/>
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-
-                        <!-- Leituras ao vivo -->
-                        <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14" Padding="18,16,18,6">
-                            <StackPanel>
-                                <TextBlock Text="LEITURAS AO VIVO" Style="{StaticResource Label}"/>
-                                <ItemsControl x:Name="BnMeters" ItemTemplate="{StaticResource Meter}" Margin="0,4,0,0">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <UniformGrid Columns="3"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemContainerStyle>
-                                        <Style TargetType="ContentPresenter">
-                                            <Setter Property="Margin" Value="0,0,24,0"/>
-                                        </Style>
-                                    </ItemsControl.ItemContainerStyle>
-                                </ItemsControl>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Sessão -->
-                        <Border Style="{StaticResource CardBorder}">
-                            <StackPanel>
-                                <Grid>
-                                    <StackPanel>
-                                        <TextBlock Text="ANÁLISE DE SESSÃO" Style="{StaticResource Label}"/>
-                                        <TextBlock Text="Clique em iniciar, abra o jogo e jogue normalmente. Ao final você recebe o diagnóstico."
-                                                   Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                        <StackPanel x:Name="BnDurationPanel" Orientation="Horizontal" Margin="0,0,14,0" VerticalAlignment="Center">
-                                            <RadioButton Style="{StaticResource Chip}" GroupName="BnDur" Content="1 min" Tag="1" Margin="0,0,6,0" IsChecked="True"/>
-                                            <RadioButton Style="{StaticResource Chip}" GroupName="BnDur" Content="3 min" Tag="3" Margin="0,0,6,0"/>
-                                            <RadioButton Style="{StaticResource Chip}" GroupName="BnDur" Content="5 min" Tag="5" Margin="0"/>
-                                        </StackPanel>
-                                        <Button x:Name="BtnBnSession" Style="{StaticResource PrimaryButton}" Content="INICIAR ANÁLISE" Click="BtnBnSession_Click"/>
-                                    </StackPanel>
-                                </Grid>
-                                <TextBlock x:Name="BnSessionStatus" Foreground="{DynamicResource Muted}" Margin="0,14,0,0"/>
-                                <StackPanel x:Name="BnResult" Visibility="Collapsed" Margin="0,16,0,0">
-                                    <TextBlock x:Name="BnResultTitle" FontSize="22" FontWeight="SemiBold"/>
-                                    <TextBlock x:Name="BnResultSummary" Foreground="{DynamicResource Muted}" Margin="0,4,0,14" TextWrapping="Wrap"/>
-                                    <ItemsControl x:Name="BnDistribution" ItemTemplate="{StaticResource Meter}"/>
-                                    <TextBlock x:Name="BnResultAdvice" TextWrapping="Wrap" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
-
-                <!-- ===== OVERLAY ===== -->
-                <ScrollViewer x:Name="PageOverlay" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="36,30,36,30">
-                        <StackPanel Margin="0,0,0,20">
-                            <TextBlock Text="Overlay" Style="{StaticResource H1}"/>
-                            <TextBlock Text="FPS, frametime e sensores por cima do jogo" Style="{StaticResource Sub}"/>
-                        </StackPanel>
-
-                        <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
-                            <Grid>
-                                <StackPanel>
-                                    <CheckBox x:Name="ChkOverlay" Content="Mostrar overlay" FontSize="15" Checked="ChkOverlay_Changed" Unchecked="ChkOverlay_Changed"/>
-                                    <TextBlock Foreground="{DynamicResource Muted}" Margin="46,6,0,0" TextWrapping="Wrap">
-                                        Atalho global: <Run Text="Ctrl + Shift + O" FontFamily="{StaticResource Mono}" Foreground="{DynamicResource Fg}"/> liga e desliga, inclusive dentro do jogo.
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
-                        <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
-                            <WrapPanel>
-                                <StackPanel Margin="0,0,36,0">
-                                    <TextBlock Text="POSIÇÃO" Style="{StaticResource Label}"/>
-                                    <StackPanel x:Name="OvCornerPanel" Orientation="Horizontal">
-                                        <RadioButton Style="{StaticResource Chip}" GroupName="OvCorner" Content="Superior esquerdo" Tag="TL" Margin="0,0,6,0" Checked="OvOption_Changed"/>
-                                        <RadioButton Style="{StaticResource Chip}" GroupName="OvCorner" Content="Superior direito" Tag="TR" Margin="0,0,6,0" Checked="OvOption_Changed"/>
-                                        <RadioButton Style="{StaticResource Chip}" GroupName="OvCorner" Content="Inferior esquerdo" Tag="BL" Margin="0,0,6,0" Checked="OvOption_Changed"/>
-                                        <RadioButton Style="{StaticResource Chip}" GroupName="OvCorner" Content="Inferior direito" Tag="BR" Margin="0" Checked="OvOption_Changed"/>
-                                    </StackPanel>
-                                </StackPanel>
-                                <StackPanel>
-                                    <TextBlock Text="TAMANHO" Style="{StaticResource Label}"/>
-                                    <StackPanel x:Name="OvScalePanel" Orientation="Horizontal">
-                                        <RadioButton Style="{StaticResource Chip}" GroupName="OvScale" Content="Pequeno" Tag="0.85" Margin="0,0,6,0" Checked="OvOption_Changed"/>
-                                        <RadioButton Style="{StaticResource Chip}" GroupName="OvScale" Content="Médio" Tag="1" Margin="0,0,6,0" Checked="OvOption_Changed"/>
-                                        <RadioButton Style="{StaticResource Chip}" GroupName="OvScale" Content="Grande" Tag="1.3" Margin="0" Checked="OvOption_Changed"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </WrapPanel>
-                        </Border>
-
-                        <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
-                            <StackPanel>
-                                <Grid>
-                                    <TextBlock Text="O QUE MOSTRAR" Style="{StaticResource Label}"/>
-                                    <WrapPanel HorizontalAlignment="Right" VerticalAlignment="Top">
-                                        <Button Style="{StaticResource OutlineButton}" Content="SÓ FPS" Tag="min" Padding="10,4" FontSize="11" Margin="0,0,6,0" Click="OvPreset_Click"/>
-                                        <Button Style="{StaticResource OutlineButton}" Content="PADRÃO" Tag="default" Padding="10,4" FontSize="11" Margin="0,0,6,0" Click="OvPreset_Click"/>
-                                        <Button Style="{StaticResource OutlineButton}" Content="TUDO" Tag="all" Padding="10,4" FontSize="11" Click="OvPreset_Click"/>
-                                    </WrapPanel>
-                                </Grid>
-                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0">
-                                    Marque o que quer ver por cima do jogo; a mudança vale na hora e fica salva. Cada componente vira uma linha
-                                    (GPU, VRAM, CPU, RAM) só com os itens escolhidos. Clock da memória, hotspot e ventoinha dependem da placa;
-                                    o limitador (PerfCap) é só NVIDIA. Clock e temperatura da CPU precisam do app como administrador.
-                                </TextBlock>
-                                <StackPanel x:Name="OvItemsPanel"/>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Style="{StaticResource CardBorder}">
-                            <StackPanel>
-                                <TextBlock Text="DETECÇÃO DE FPS" Style="{StaticResource Label}"/>
-                                <TextBlock x:Name="OvStatus" FontSize="15"/>
-                                <TextBlock Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,10,0,0">
-                                    O FPS é medido pelo rastreamento de eventos do Windows (ETW), a mesma técnica do PresentMon:
-                                    nada é injetado no jogo, então é seguro com anti-cheat. Funciona com DirectX 9 a 12; jogos em
-                                    Vulkan/OpenGL só aparecem se o driver apresentar via DXGI. O overlay aparece em tela cheia
-                                    "sem bordas" e na maioria dos jogos DX11/12 em tela cheia, mas não em tela cheia exclusiva antiga.
-                                </TextBlock>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
 
                 <!-- ===== GLM BENCH ===== -->
                 <Grid x:Name="PageBench" Margin="36,30,36,30" Visibility="Collapsed">
@@ -2476,6 +2008,95 @@
                                 </ItemsControl>
                                 <Button x:Name="BtnAppsStore" Style="{StaticResource OutlineButton}" Content="ATUALIZAR O INSTALADOR DE APLICATIVO (MICROSOFT STORE)"
                                         Padding="14,7" Margin="0,12,0,0" HorizontalAlignment="Left" Visibility="Collapsed" Click="BtnAppsStore_Click"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardBorder}" Margin="0,16,0,0">
+                            <StackPanel>
+                                <TextBlock Text="OFFICE · CHAVE DO CLIENTE (OPCIONAL)" Style="{StaticResource Label}" Margin="0,0,0,6"/>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10">
+                                    Digite a chave de produto que o cliente comprou (25 caracteres). Ao instalar o Office 2024 acima, ela vai junto e o Office
+                                    é ativado sozinho pela Microsoft. Se o Office já estiver instalado, use ATIVAR. A chave não é salva em lugar nenhum.
+                                </TextBlock>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="OfficeKeyBox" Tag="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" CharacterCasing="Upper" MaxLength="29"
+                                             FontFamily="{StaticResource Mono}" MaxWidth="360" HorizontalAlignment="Left" Width="360"/>
+                                    <Button x:Name="BtnOfficeActivate" Grid.Column="1" Style="{StaticResource OutlineButton}" Content="ATIVAR OFFICE INSTALADO"
+                                            Padding="14,7" Margin="12,0,0,0" VerticalAlignment="Center" Click="BtnOfficeActivate_Click"/>
+                                </Grid>
+                                <TextBlock x:Name="OfficeKeyStatus" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0" Foreground="{DynamicResource Muted}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ===== GLM FERRAMENTAS · Domínio (renomear no padrão e ingressar no AD) ===== -->
+                <ScrollViewer x:Name="PageDomain" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <StackPanel Margin="0,0,0,20">
+                            <TextBlock Text="DOMÍNIO" Style="{StaticResource H1}"/>
+                            <TextBlock Text="Renomeia no padrão Luft (ex.: LABARPC001) com o próximo número livre no AD e ingressa no domínio num passo só" Style="{StaticResource Sub}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <Border x:Name="DomainWarnBox" Style="{StaticResource CardBorder}" Visibility="Collapsed">
+                            <TextBlock x:Name="DomainWarn" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                        </Border>
+
+                        <Border Style="{StaticResource CardBorder}">
+                            <StackPanel>
+                                <TextBlock Text="NOME DA MÁQUINA" Style="{StaticResource Label}" Margin="0,0,0,8"/>
+                                <TextBlock Text="Segmento" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,0,0,6"/>
+                                <WrapPanel x:Name="DomainSegPanel" Margin="0,0,0,8">
+                                    <RadioButton Style="{StaticResource Chip}" GroupName="DomainSeg" Content="LCBAR · Luft Corporativo" Tag="LCBAR" IsChecked="True"/>
+                                    <RadioButton Style="{StaticResource Chip}" GroupName="DomainSeg" Content="LABAR · Luft Agro" Tag="LABAR"/>
+                                </WrapPanel>
+                                <TextBlock Text="Tipo" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,0,0,6"/>
+                                <WrapPanel x:Name="DomainTypePanel" Margin="0,0,0,2">
+                                    <RadioButton x:Name="DomainTypeNb" Style="{StaticResource Chip}" GroupName="DomainType" Content="NB · Notebook" Tag="NB"/>
+                                    <RadioButton x:Name="DomainTypePc" Style="{StaticResource Chip}" GroupName="DomainType" Content="PC · Desktop" Tag="PC"/>
+                                </WrapPanel>
+                                <TextBlock x:Name="DomainTypeHint" Foreground="{DynamicResource Faint}" FontSize="11" Margin="0,0,0,12"/>
+
+                                <TextBlock Text="CONTA COM PERMISSÃO NO AD" Style="{StaticResource Label}" Margin="0,4,0,8"/>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Domínio" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                                    <TextBox x:Name="DomainNameBox" Grid.Column="1" MaxWidth="360" HorizontalAlignment="Left" Width="360" Margin="0,0,0,8"/>
+                                    <TextBlock Grid.Row="1" Text="Usuário" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                                    <TextBox x:Name="DomainUserBox" Grid.Row="1" Grid.Column="1" Tag="usuario (ou usuario@luft.com.br)" MaxWidth="360" HorizontalAlignment="Left" Width="360" Margin="0,0,0,8"/>
+                                    <TextBlock Grid.Row="2" Text="Senha" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                                    <PasswordBox x:Name="DomainPassBox" Grid.Row="2" Grid.Column="1" MaxWidth="360" HorizontalAlignment="Left" Width="360" Margin="0,0,0,8"/>
+                                    <TextBlock Grid.Row="3" Text="OU (opcional)" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                                    <TextBox x:Name="DomainOuBox" Grid.Row="3" Grid.Column="1" Tag="OU=Computadores,DC=luft,DC=com,DC=br" FontFamily="{StaticResource Mono}" MaxWidth="460" HorizontalAlignment="Left" Width="460"/>
+                                </Grid>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14">
+                                    A senha é usada só nesta operação e não é salva nem registrada em log. Sem OU, a máquina vai para a pasta padrão de computadores do AD.
+                                </TextBlock>
+
+                                <TextBlock Text="NOVO NOME" Style="{StaticResource Label}" Margin="0,0,0,8"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button x:Name="BtnDomainFind" Style="{StaticResource OutlineButton}" Content="BUSCAR PRÓXIMO NOME" Padding="14,7"
+                                            VerticalAlignment="Center" Click="BtnDomainFind_Click"/>
+                                    <TextBox x:Name="DomainNewName" Grid.Column="1" Tag="LCBARPC001" CharacterCasing="Upper" MaxLength="15"
+                                             FontFamily="{StaticResource Mono}" Width="200" Margin="12,0,12,0"/>
+                                    <Button x:Name="BtnDomainJoin" Grid.Column="2" Style="{StaticResource PrimaryButton}" Content="INGRESSAR NO DOMÍNIO" Padding="18,8"
+                                            HorizontalAlignment="Left" VerticalAlignment="Center" Click="BtnDomainJoin_Click"/>
+                                </Grid>
+                                <TextBlock x:Name="DomainStatus" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,12,0,0"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>

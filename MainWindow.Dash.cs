@@ -121,14 +121,14 @@ public partial class MainWindow
     {
         var rows = new List<DashComponent>
         {
-            new("", "Processador", GameCatalog.ShortCpuName(_cpuName),
+            new("", "Processador", HardwareNames.ShortCpuName(_cpuName),
                 F(_monitor.CpuTemperature, "0", " °C"), F(_monitor.CpuLoad, "0", " %"), F(CpuClockAvg(), "0", " MHz"),
                 F(_monitor.CpuPower, "0", " W"), "PageSensors"),
         };
         if (_gpus.Count > 0)
         {
             uint? clk = _gpus[0].NvmlHandle != IntPtr.Zero ? Nvml.Clock(_gpus[0].NvmlHandle, Nvml.ClockGraphics) : null;
-            rows.Add(new("", "Placa de vídeo", GameCatalog.ShortGpuName(_gpus[0].Name),
+            rows.Add(new("", "Placa de vídeo", HardwareNames.ShortGpuName(_gpus[0].Name),
                          F(MainGpuTemp(), "0", " °C"), F(MainGpuLoad(), "0", " %"), clk is uint c ? $"{c} MHz" : "—",
                          F(MainGpuPower(), "0", " W"), "PageGpu"));
         }
@@ -169,8 +169,8 @@ public partial class MainWindow
             new KeyValuePair<string, string>("Cena de jogo (GPU)", Last("gpu")),
             new KeyValuePair<string, string>("Simulação de jogo", Last("sim")),
         };
-        DashCpuName.Text = GameCatalog.ShortCpuName(_cpuName);
-        DashGpuName.Text = _gpus.Count > 0 ? GameCatalog.ShortGpuName(_gpus[0].Name) : "—";
+        DashCpuName.Text = HardwareNames.ShortCpuName(_cpuName);
+        DashGpuName.Text = _gpus.Count > 0 ? HardwareNames.ShortGpuName(_gpus[0].Name) : "—";
     }
 
     // ---------------- gráfico de área ----------------

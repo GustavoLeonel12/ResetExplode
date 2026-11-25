@@ -32,24 +32,10 @@ public partial class MainWindow : Window
     private double _tempLimit = 90;
     private float _stressMaxTemp;
 
-    // Jogos
     private readonly AppSettings _settings = AppSettings.Load();
-    private readonly HowManyFpsClient _fpsApi = new();
-    private List<GameRow> _gameRows = new();
-    private ListCollectionView? _gameView;
-    private CancellationTokenSource? _gameFetch;
-    private string _cpuName = "", _gpuName = "";
-    private double _cpuIdx = 80, _gpuIdx = 50;
+    private string _cpuName = "";
 
-    // Gargalo + overlay
     public sealed record MeterItem(string Label, string Value, double Fraction);
-    private readonly FrameMonitor _frames = new();
-    private BottleneckSession? _bnSession;
-    private double _balanceRatio = 1;
-    private OverlayWindow? _overlay;
-    private DispatcherTimer? _overlayTimer;
-    private bool _overlayReady;
-    private const int HotkeyId = 0x5245; // "RE"
 
     // GLM BENCH
     private readonly BenchRenderer _bench = new();
@@ -113,7 +99,6 @@ public partial class MainWindow : Window
             UpdateGpuLive();
             UpdateCpuSensorWarning();
             CollectDashSample();
-            UpdateBottleneck();
             if (PageBench.IsVisible) UpdateBenchLive();
             if (PageOptimize.IsVisible) UpdateRamStatus();
         };
@@ -128,14 +113,10 @@ public partial class MainWindow : Window
         };
         Closed += (_, _) =>
         {
-            _timer.Stop(); _overlayTimer?.Stop();
+            _timer.Stop();
             _stress.Stop(); _burn.Stop(); _benchCts?.Cancel();
-            _overlay?.Close();
             _toast?.Close();
-            _frames.Dispose();
-            UnregisterHotKey(new System.Windows.Interop.WindowInteropHelper(this).Handle, HotkeyId);
             ShutdownInteg();
-            _launchCts?.Cancel();
             _monitor.Dispose();
         };
     }
@@ -181,8 +162,7 @@ public partial class MainWindow : Window
             if (_gpus.Count > 0) ShowGpu(_gpus[0]);
 
             // Dependem do nome da GPU/CPU
-            InitGames();
-            InitBottleneckAndOverlay();
+            LoadCpuName();
             InitOc();
             UpdateDashboard();
         }
@@ -273,10 +253,10 @@ public partial class MainWindow : Window
             case "PageEnergy": RefreshEnergy(); break;
             case "PageOc": UpdateOcGpuState(); UpdateRecentErrors(); break;
             case "PageInteg": InitInteg(); break;
-            case "PageLauncher": InitLauncher(); break;
             case "PageDriver": InitDriver(); break;
             case "PageStartup": ScanStartup(); break;
             case "PageApps": InitApps(); break;
+            case "PageDomain": InitDomain(); break;
             case "PageClean": InitClean(); break;
             case "PageTech": InitTech(); break;
             case "PageMakerPorts": ScanUsb(); break;
@@ -287,7 +267,7 @@ public partial class MainWindow : Window
 
     private void ShowPage(string name)
     {
-        foreach (var p in new FrameworkElement[] { PageDash, PageSystem, PageSensors, PageGpu, PageGames, PageBottleneck, PageOverlay, PageBench, PageOptimize, PageOc, PageInteg, PageLauncher, PageDriver, PageStartup, PageApps, PageClean, PageTech, PageMakerPorts, PageMakerDrv, PageDisks, PageEnergy, PageNet, PageStress })
+        foreach (var p in new FrameworkElement[] { PageDash, PageSystem, PageSensors, PageGpu, PageBench, PageOptimize, PageOc, PageInteg, PageDriver, PageStartup, PageApps, PageDomain, PageClean, PageTech, PageMakerPorts, PageMakerDrv, PageDisks, PageEnergy, PageNet, PageStress })
             p.Visibility = p.Name == name ? Visibility.Visible : Visibility.Collapsed;
     }
 
@@ -452,9 +432,10 @@ public partial class MainWindow : Window
         if (_gpu != null && PageGpu.IsVisible) GpuExtras.ItemsSource = _gpu.LiveExtras();
     }
 
-    // ---------------- Jogos ----------------
+    // ---------------- Processador ----------------
 
-    private void InitGames()
+    /// <summary>Nome do processador (usado no painel, no GLM OC e no histórico do benchmark).</summary>
+    private void LoadCpuName()
     {
         try
         {
@@ -462,224 +443,6 @@ public partial class MainWindow : Window
             foreach (System.Management.ManagementObject mo in s.Get()) { _cpuName = mo["Name"]?.ToString()?.Trim() ?? ""; break; }
         }
         catch { }
-        _gpuName = _gpus.Count > 0 ? _gpus[0].Name : "";
-        _gpuIdx = GameCatalog.GpuPerf(_gpuName) ?? 50;
-        _cpuIdx = GameCatalog.CpuPerf(_cpuName) ?? 80;
-        GamesSub.Text = $"FPS esperado no seu PC · {GameCatalog.ShortGpuName(_gpuName)} · {GameCatalog.ShortCpuName(_cpuName)}";
-
-        _fpsApi.ApiKey = _settings.HowManyFpsKey;
-        if (_fpsApi.Configured) ApiKeyBox.Password = _settings.HowManyFpsKey;
-
-        _gameRows = GameCatalog.Games.Select(g => new GameRow(g)).ToList();
-        _gameView = new ListCollectionView(_gameRows);
-        GameList.ItemsSource = _gameView;
-        RefreshGames();
-    }
-
-    private void GameOption_Changed(object sender, RoutedEventArgs e)
-    {
-        if (_gameView != null) RefreshGames(); // também dispara durante InitializeComponent
-    }
-
-    private void GameSearch_Changed(object sender, TextChangedEventArgs e)
-    {
-        if (_gameView == null) return;
-        string q = GameSearch.Text.Trim();
-        _gameView.Filter = q.Length == 0 ? null : o => ((GameRow)o).Name.Contains(q, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private void ApiKeyBox_Changed(object sender, RoutedEventArgs e)
-        => ApiKeyHint.Visibility = ApiKeyBox.Password.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
-
-    private void BtnApiKey_Click(object sender, RoutedEventArgs e)
-    {
-        _settings.HowManyFpsKey = ApiKeyBox.Password;
-        _settings.Save();
-        _fpsApi.ApiKey = _settings.HowManyFpsKey;
-        RefreshGames();
-    }
-
-    /// <summary>Recalcula a estimativa local de todos os jogos e, com chave configurada, busca os dados reais na API.</summary>
-    private void RefreshGames()
-    {
-        string res = CheckedTag(GameResPanel) ?? "1920x1080";
-        string preset = CheckedTag(GamePresetPanel) ?? "Alto";
-        string up = CheckedTag(GameUpscalePanel) ?? "Native";
-
-        foreach (var row in _gameRows)
-        {
-            var est = GameCatalog.Estimate(row.Game, _gpuIdx, _cpuIdx, res, preset, up);
-            string limiter = est.Limiter switch
-            {
-                Bottleneck.Cpu => "gargalo: CPU",
-                Bottleneck.Gpu => "gargalo: GPU",
-                Bottleneck.Engine => $"trava do jogo em {row.Game.EngineCap:0} FPS",
-                _ => ""
-            };
-            row.Set(est.Avg, 0, "ESTIMATIVA", limiter);
-        }
-
-        _gameFetch?.Cancel();
-        if (_fpsApi.Configured)
-        {
-            GameSourceTitle.Text = "Fonte: HowManyFPS (dados reais)";
-            GameSourceText.Text = "FPS médio e 1% low medidos em sessões reais de jogo. Respostas ficam em cache por 7 dias. " +
-                                  "A API usa as configurações gráficas dela; \"Gráficos\" vale só para a estimativa.";
-            BtnApiKey.Content = "ATUALIZAR CHAVE";
-            _gameFetch = new CancellationTokenSource();
-            _ = FetchGamesAsync(res, up, _gameFetch.Token);
-        }
-        else
-        {
-            GameSourceTitle.Text = "Fonte: estimativa local (aproximada)";
-            GameSourceText.Text = "Calculada a partir do desempenho relativo da sua GPU e CPU. Para FPS medido em jogo, " +
-                                  "peça uma chave da API em info@howmanyfps.com e cole ao lado.";
-            BtnApiKey.Content = "SALVAR CHAVE";
-        }
-    }
-
-    private async Task FetchGamesAsync(string res, string up, CancellationToken ct)
-    {
-        string cpu = GameCatalog.ShortCpuName(_cpuName), gpu = GameCatalog.ShortGpuName(_gpuName);
-        int ok = 0;
-        foreach (var row in _gameRows)
-        {
-            if (ct.IsCancellationRequested) return;
-            try
-            {
-                var r = await _fpsApi.GetAsync(cpu, gpu, row.Name, res, up, ct);
-                row.Set(r.AvgFps, r.Min1Fps, "HOWMANYFPS", "");
-                ok++;
-            }
-            catch (OperationCanceledException) { return; }
-            catch (Exception ex)
-            {
-                row.Set(row.Fps, 0, "ESTIMATIVA", $"API: {ex.Message}");
-                if (ex.Message.Contains("chave") || ex.Message.Contains("cota"))
-                {
-                    GameSourceText.Text = $"A API recusou a consulta ({ex.Message}). Mostrando a estimativa local.";
-                    return; // não adianta insistir nos outros jogos
-                }
-            }
-        }
-        if (!ct.IsCancellationRequested)
-            GameSourceText.Text = $"{ok} de {_gameRows.Count} jogos com dados da HowManyFPS; os demais usam a estimativa local.";
-    }
-
-    // ---------------- Gargalo ----------------
-
-    private void InitBottleneckAndOverlay()
-    {
-        _frames.Start();
-
-        var (ratio, text) = BottleneckAnalyzer.Balance(_gpuIdx, _cpuIdx);
-        _balanceRatio = ratio;
-        BnCpuName.Text = $"CPU · {GameCatalog.ShortCpuName(_cpuName)}";
-        BnGpuName.Text = $"GPU · {GameCatalog.ShortGpuName(_gpuName)}";
-        BnBalanceText.Text = text;
-
-        // Preferências do overlay
-        foreach (var rb in OvCornerPanel.Children.OfType<RadioButton>())
-            rb.IsChecked = (string)rb.Tag == _settings.OverlayCorner;
-        foreach (var rb in OvScalePanel.Children.OfType<RadioButton>())
-            rb.IsChecked = Math.Abs(double.Parse((string)rb.Tag, CultureInfo.InvariantCulture) - _settings.OverlayScale) < 0.01;
-        BuildOverlayPicker();
-        _overlayReady = true;
-        UpdateOverlayStatus(null);
-    }
-
-    /// <summary>Posição do marcador: escala logarítmica da razão GPU/CPU (0,4× … 2,5×), centro = equilibrado.</summary>
-    private void BnBalanceCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        double w = BnBalanceCanvas.ActualWidth;
-        double t = Math.Clamp((Math.Log(_balanceRatio) - Math.Log(0.4)) / (Math.Log(2.5) - Math.Log(0.4)), 0, 1);
-        Canvas.SetLeft(BnBalanceDot, t * (w - BnBalanceDot.Width));
-    }
-
-    private static MeterItem Meter(string label, double? pct, string? suffix = null)
-        => new(label, pct == null ? "—" : $"{pct:0} %{suffix}", Math.Clamp((pct ?? 0) / 100, 0, 1));
-
-    private void UpdateBottleneck()
-    {
-        var frames = _frames.GetForegroundStats();
-        var s = BottleneckAnalyzer.Sample(_monitor, _gpus.FirstOrDefault(), frames);
-        var lim = s.Classify();
-
-        if (PageBottleneck.IsVisible || _bnSession != null)
-        {
-            BnLiveTitle.Text = BottleneckAnalyzer.Title(lim);
-            BnLiveAdvice.Text = BottleneckAnalyzer.Advice(lim);
-            BnLiveGame.Text = frames != null
-                ? $"{frames.ProcessName} · {frames.Fps:0} FPS · 1% low {frames.Low1Fps:0}"
-                : "Nenhum jogo em primeiro plano (o FPS aparece quando o jogo estiver na tela)";
-            bool alert = lim is Limiter.Cpu or Limiter.Vram or Limiter.Ram or Limiter.Thermal;
-            BnLiveCard.Background = alert ? Fg : Card;
-            BnLiveTitle.Foreground = alert ? Ink : Fg;
-            BnLiveLabel.Foreground = BnLiveGame.Foreground = BnLiveAdvice.Foreground = alert ? Ink : Muted;
-
-            BnMeters.ItemsSource = new[]
-            {
-                Meter("Carga da GPU", s.GpuLoad),
-                Meter("Carga total da CPU", s.CpuTotal),
-                Meter(s.BusiestCore != null ? $"Núcleo mais ocupado ({s.BusiestCore})" : "Núcleo mais ocupado", s.CpuMaxCore),
-                Meter("VRAM em uso", s.VramPct),
-                Meter("RAM em uso", s.RamPct),
-                new MeterItem("Temperaturas (GPU / CPU)",
-                              $"{(s.GpuTemp is float g ? $"{g:0} °C" : "—")} / {(s.CpuTemp is float c ? $"{c:0} °C" : "—")}",
-                              Math.Clamp(Math.Max(s.GpuTemp ?? 0, s.CpuTemp ?? 0) / 100.0, 0, 1)),
-            };
-        }
-
-        if (_bnSession != null)
-        {
-            _bnSession.Add(s);
-            var el = DateTime.Now - _bnSession.Start;
-            BnSessionStatus.Text = $"Coletando… {el:m\\:ss} de {_bnSession.Duration:m\\:ss} · {_bnSession.Count} amostras · " +
-                                   (frames != null ? $"jogo detectado: {frames.ProcessName}" : "abra o jogo agora");
-            if (_bnSession.Done) FinishBottleneckSession();
-        }
-    }
-
-    private void BtnBnSession_Click(object sender, RoutedEventArgs e)
-    {
-        if (_bnSession != null)
-        {
-            _bnSession = null;
-            BtnBnSession.Content = "INICIAR ANÁLISE";
-            BtnBnSession.Style = (Style)FindResource("PrimaryButton");
-            BnSessionStatus.Text = "Análise cancelada.";
-            return;
-        }
-        int minutes = int.Parse(CheckedTag(BnDurationPanel) ?? "1");
-        _bnSession = new BottleneckSession { Duration = TimeSpan.FromMinutes(minutes) };
-        BnResult.Visibility = Visibility.Collapsed;
-        BtnBnSession.Content = "CANCELAR";
-        BtnBnSession.Style = (Style)FindResource("OutlineButton");
-        BnSessionStatus.Text = "Coletando… abra o jogo agora.";
-    }
-
-    private void FinishBottleneckSession()
-    {
-        var sess = _bnSession!;
-        _bnSession = null;
-        BtnBnSession.Content = "INICIAR ANÁLISE";
-        BtnBnSession.Style = (Style)FindResource("PrimaryButton");
-        BnSessionStatus.Text = $"Análise concluída às {DateTime.Now:HH:mm} ({sess.Count} amostras).";
-
-        var main = sess.Main ?? Limiter.Capped;
-        BnResultTitle.Text = $"Resultado: {BottleneckAnalyzer.Title(main)}";
-        var parts = new List<string>();
-        if (sess.AvgFps is double fps) parts.Add($"FPS médio {fps:0}");
-        if (sess.Avg(x => x.GpuLoad) is double g) parts.Add($"GPU média {g:0} %");
-        if (sess.Avg(x => x.CpuTotal) is double c) parts.Add($"CPU média {c:0} %");
-        if (sess.Avg(x => x.CpuMaxCore) is double k) parts.Add($"núcleo mais ocupado {k:0} %");
-        if (sess.Max(x => x.VramPct) is double v) parts.Add($"VRAM máx. {v:0} %");
-        if (sess.Max(x => x.GpuTemp) is double gt) parts.Add($"GPU máx. {gt:0} °C");
-        BnResultSummary.Text = string.Join(" · ", parts);
-        BnDistribution.ItemsSource = sess.Distribution()
-            .Select(d => new MeterItem($"{BottleneckAnalyzer.Title(d.Limiter)} — % do tempo", $"{d.Pct:0} %", d.Pct / 100)).ToList();
-        BnResultAdvice.Text = BottleneckAnalyzer.Advice(main);
-        BnResult.Visibility = Visibility.Visible;
     }
 
     // ---------------- GLM BENCH ----------------
@@ -758,7 +521,7 @@ public partial class MainWindow : Window
             BenchRatio.Text = $"Multi ÷ single: {m / s:0.0}x com {threads} threads " +
                               $"({Environment.ProcessorCount / 2} núcleos com SMT costumam render 8–12x).";
 
-        _settings.BenchRuns.Insert(0, new BenchRun(DateTime.Now, mt, st, sustained, GameCatalog.ShortCpuName(_cpuName)));
+        _settings.BenchRuns.Insert(0, new BenchRun(DateTime.Now, mt, st, sustained, HardwareNames.ShortCpuName(_cpuName)));
         AddEvent("", "GLM BENCH", "Render de CPU", mt is double mte ? $"{mte:N0} pts" : st is double ste ? $"{ste:N0} pts" : "");
         if (_settings.BenchRuns.Count > 10) _settings.BenchRuns.RemoveRange(10, _settings.BenchRuns.Count - 10);
         _settings.Save();
@@ -802,7 +565,7 @@ public partial class MainWindow : Window
                                               r.Name.StartsWith("Core #") && r.RawValue > 0).Select(r => r.RawValue!.Value).ToList();
         BenchLive.ItemsSource = new[]
         {
-            new KeyValuePair<string, string>("CPU", GameCatalog.ShortCpuName(_cpuName)),
+            new KeyValuePair<string, string>("CPU", HardwareNames.ShortCpuName(_cpuName)),
             new KeyValuePair<string, string>("Threads", $"{Environment.ProcessorCount}"),
             new KeyValuePair<string, string>("Temperatura", _monitor.CpuTemperature is float t ? $"{t:0.#} °C" : "—"),
             new KeyValuePair<string, string>("Clock médio", clocks.Count > 0 ? $"{clocks.Average():0} MHz" : "—"),
@@ -1127,14 +890,11 @@ public partial class MainWindow : Window
         timer.Start();
         _gpuBenchActive = true;
         GbGpuNow.Text = "sensores pausados";
-        bool overlayWasOn = ChkOverlay.IsChecked == true;
-        if (overlayWasOn) ChkOverlay.IsChecked = false; // o overlay também consulta a GPU
 
         // Thread dedicada: a cena roda num loop próprio com prioridade alta.
         var r = await Task.Factory.StartNew(bench.Run, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         timer.Stop();
         _gpuBenchActive = false;
-        if (overlayWasOn) ChkOverlay.IsChecked = true;
         GbGpuNow.Text = "—";
         SetGameBenchRunning(BtnGpuBench, false);
         GbProgress.ScaleX = 0;
@@ -1277,88 +1037,21 @@ public partial class MainWindow : Window
         }
     }
 
-    // ---------------- Overlay ----------------
+    // ---------------- Mensagens da janela ----------------
 
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
         var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-        System.Windows.Interop.HwndSource.FromHwnd(hwnd)?.AddHook(HotkeyHook);
-        // Ctrl + Shift + O, sem repetição ao segurar
-        RegisterHotKey(hwnd, HotkeyId, 0x0002 | 0x0004 | 0x4000, 0x4F);
+        System.Windows.Interop.HwndSource.FromHwnd(hwnd)?.AddHook(WndHook);
     }
 
-    private IntPtr HotkeyHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    private IntPtr WndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
-        if (msg == 0x0312 && wParam.ToInt32() == HotkeyId) // WM_HOTKEY
-        {
-            ChkOverlay.IsChecked = ChkOverlay.IsChecked != true;
-            handled = true;
-        }
-        else if (msg == 0x0219) // WM_DEVICECHANGE
+        if (msg == 0x0219) // WM_DEVICECHANGE
             OnDeviceChange(wParam.ToInt32(), lParam);
         return IntPtr.Zero;
     }
-
-    private void ChkOverlay_Changed(object sender, RoutedEventArgs e)
-    {
-        if (ChkOverlay.IsChecked == true)
-        {
-            _overlay ??= new OverlayWindow();
-            ApplyOverlayOptions();
-            _overlay.Show();
-            _overlayTimer ??= new DispatcherTimer(TimeSpan.FromMilliseconds(500), DispatcherPriority.Normal,
-                                                  (_, _) => UpdateOverlay(), Dispatcher);
-            _overlayTimer.Start();
-            UpdateOverlay();
-        }
-        else
-        {
-            _overlayTimer?.Stop();
-            _overlay?.Hide();
-        }
-    }
-
-    private void OvOption_Changed(object sender, RoutedEventArgs e)
-    {
-        if (!_overlayReady) return;
-        _settings.OverlayCorner = CheckedTag(OvCornerPanel) ?? "TL";
-        _settings.OverlayScale = double.Parse(CheckedTag(OvScalePanel) ?? "1", CultureInfo.InvariantCulture);
-        _settings.Save();
-        ApplyOverlayOptions();
-    }
-
-    private void ApplyOverlayOptions()
-    {
-        if (_overlay == null) return;
-        _overlay.Corner = _settings.OverlayCorner;
-        _overlay.SetScale(_settings.OverlayScale);
-        _overlay.Reposition();
-    }
-
-    private void UpdateOverlay()
-    {
-        var f = _frames.GetForegroundStats();
-        if (_overlay != null && _overlay.IsVisible)
-        {
-            _overlay.Update(f, BuildOverlayLines(f), OvShow, OvShow.Contains("clock") ? DateTime.Now.ToString("HH:mm") : null);
-            _overlay.KeepOnTop(); // o jogo pode ter passado na frente (janela sem borda "sempre no topo")
-        }
-        UpdateOverlayStatus(f);
-    }
-
-
-    private void UpdateOverlayStatus(FrameStats? f)
-    {
-        if (_frames.Error != null) OvStatus.Text = $"Detecção de FPS indisponível: {_frames.Error}";
-        else if (f != null) OvStatus.Text = $"Ativa · {f.ProcessName}: {f.Fps:0} FPS ({f.FrameTimeMs:0.0} ms) · 1% low {f.Low1Fps:0}";
-        else OvStatus.Text = "Ativa · aguardando um jogo em primeiro plano";
-    }
-
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint modifiers, uint vk);
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
     // ---------------- Sensores ----------------
 

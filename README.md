@@ -13,11 +13,11 @@
 
 ## Novidades da v0.16
 - **Inicialização** (GLM FERRAMENTAS): veja, desative ou remova os programas que abrem junto com o Windows, com opção de desfazer.
-- **Instalar apps** (GLM FERRAMENTAS): Steam, Chrome, Discord, Lightshot, 7-Zip, WinRAR e VLC de uma vez depois de formatar, pelo winget.
+- **Instalar apps** (GLM FERRAMENTAS): os essenciais de uma vez depois de formatar, pelo winget.
+- **Domínio** (GLM FERRAMENTAS): renomeia no padrão Luft (ex.: LABARPC001) com o próximo número livre no AD e ingressa em luft.com.br.
 - **GLM MAKER** (nova categoria): Portas COM (fantasmas e números COM presos, que saiu de Otimização) e Drivers seriais
   (CH340, CP2102, FTDI, Prolific e Arduino: diagnóstico, reinstalar, trocar ou remover versão do driver, Arduino IDE).
 - **Abertura mais rápida**: a janela aparece em ~0,5 s (antes ~4,6 s); o hardware é lido em paralelo, em segundo plano.
-- **Overlay corrigido**: fica por cima de jogos em janela sem borda como GTA V e Cyberpunk 2077 e segue o monitor do jogo.
 
 Detalhes em [NOVIDADES.md](NOVIDADES.md) (o mesmo texto vai nas notas da release).
 
@@ -39,18 +39,6 @@ App WPF (.NET 8) com:
   Opções: resolução (720p/1080p/1440p/tela cheia), MSAA (off/4x/8x), intensidade (Normal/Alta/Extrema) e limite de temperatura da GPU.
   Mostra FPS, temperatura, consumo e PerfCap; ao final registra frames e FPS médio. ESC ou fechar a janela encerra o teste.
   Medido numa RTX 5070 (1080p, 4x MSAA, Alta): ~99% de uso e 220–232 W de 250 W.
-- **Jogos**: FPS esperado em 32 jogos populares para a sua GPU + CPU, por resolução (1080p/1440p/4K), gráficos e upscaling (DLSS/FSR).
-  Com chave da [HowManyFPS API](https://howmanyfps.com/developer-api) (pedida em info@howmanyfps.com) mostra FPS médio e 1% low medidos em sessões reais;
-  sem chave, usa uma estimativa local aproximada (`GameCatalog.cs`). A chave fica cifrada com DPAPI em `%AppData%\ResetExplode` e as respostas em cache por 7 dias.
-- **Detector de gargalo**: equilíbrio teórico GPU × CPU; leitura ao vivo (carga da GPU, CPU total, núcleo mais ocupado, VRAM, RAM,
-  temperaturas, limitador térmico) com veredito; e análise de sessão (1/3/5 min) com % do tempo limitado por GPU, CPU, VRAM, RAM,
-  temperatura ou trava de FPS, mais recomendações (`BottleneckAnalyzer.cs`).
-- **Overlay de jogos** (estilo RTSS/Afterburner, `OverlayWindow.xaml`): FPS, frametime, 1% low, gráfico de frametime, GPU/CPU/RAM/VRAM.
-  Janela transparente, sempre no topo e que ignora cliques; atalho global **Ctrl+Shift+O**. **Itens escolhidos pelo usuário** (`OverlayMetrics.cs`,
-  `MainWindow.Overlay.cs`): FPS/frametime/1% low/gráfico, GPU (uso, temperatura, hotspot, clocks do núcleo e da memória, consumo, tensão,
-  ventoinha, PerfCap), VRAM, CPU (uso, núcleo mais ocupado, temperatura, clock médio e máximo, consumo), RAM, nome do jogo e hora. Volta para o topo a cada troca de janela ativa
-  (jogos em janela sem borda também se marcam como "sempre no topo") e fica no monitor do jogo. Não aparece em tela cheia exclusiva. O FPS de qualquer jogo é medido via ETW
-  (eventos Present de DXGI/D3D9, como o PresentMon, `FrameMonitor.cs`), sem injetar nada no jogo.
 - **GLM BENCH** (`BenchRenderer.cs`): benchmark de CPU no princípio do Cinebench, com renderizador próprio. Path tracer monocromático
   (iluminação global, sombras suaves, metal e vidro com refração), 960×540 a 1024 amostras/pixel, imagem em blocos de 32 px
   distribuídos entre threads do centro para fora. Multi-core (todas as threads) e single-core (1 thread, imagem inteira, ~1min40s num 7700X),
@@ -98,9 +86,17 @@ App WPF (.NET 8) com:
 - **Inicialização** (`StartupManager.cs`, `MainWindow.Startup.cs`): lista os programas que abrem com o Windows (chaves Run do usuário e
   de todos os usuários, 32 e 64 bits, e pastas Inicializar) com descrição e fabricante. Interruptor para ativar/desativar igual ao
   Gerenciador de Tarefas (chaves StartupApproved) e botão REMOVER, com cópia em `%AppData%\ResetExplode` para "Restaurar removidos".
-- **Instalar apps** (`AppInstaller.cs`, `MainWindow.Apps.cs`): instala os essenciais pós-formatação (Steam, Google Chrome, Discord,
-  Lightshot, 7-Zip, WinRAR, VLC) pelo **winget**, em silêncio e um de cada vez, mostrando o resultado de cada um. Detecta o que já está
+- **Instalar apps** (`AppInstaller.cs`, `MainWindow.Apps.cs`): instala os essenciais pós-formatação (Google Chrome, Firefox,
+  Adobe Acrobat Reader, AnyDesk, TeamViewer, WinRAR, Lightshot) pelo **winget**. O **Office 2024** (Professional Plus ou Home & Business) vem pela
+  Ferramenta de Implantação do Office (setup.exe oficial do CDN da Microsoft, com a assinatura conferida), 64 bits, no idioma do Windows e sem chave
+  embutida. Campo opcional para a **chave do cliente**: ela vai no `PIDKEY` com `AUTOACTIVATE` e, se preciso, o `OSPP.VBS`
+  (`/inpkey` + `/act`) ativa; serve também para ativar um Office já instalado. A chave não é salva (o XML é apagado ao terminar), em silêncio e um de cada vez, mostrando o resultado de cada um. Detecta o que já está
   instalado (Aplicativos instalados do Windows). Para incluir outro app, acrescente uma linha em `AppInstaller.Catalog()` com o ID do winget.
+- **Domínio** (`DomainJoin.cs`, `MainWindow.Domain.cs`): nome = segmento (LCBAR Luft Corporativo / LABAR Luft Agro) + tipo
+  (NB notebook / PC desktop, detectado pelo chassi ou bateria) + 3 dígitos. Consulta o AD por LDAP com a conta informada, sugere o
+  maior número existente + 1 (pulando qualquer nome que já exista), confere de novo logo antes, renomeia e ingressa num passo só
+  (`SetComputerNameEx` + `NetJoinDomain` com `JOIN_WITH_NEW_NAME`, OU opcional) e oferece reiniciar. Se o ingresso falhar, o nome
+  volta ao anterior. Avisa se o Windows for Home ou se a máquina já estiver num domínio. A senha não é salva nem registrada.
 - **Saúde dos discos (S.M.A.R.T.)** (`DiskHealth.cs`, `MainWindow.Disks.cs`): página própria com um cartão por disco físico —
   veredito (Bom/Atenção/Ruim) com os motivos, temperatura, horas ligado, ciclos, desgaste do SSD, setores realocados, erros de leitura/escrita
   e previsão de falha. Fontes: Windows Storage (MSFT_PhysicalDisk, MSFT_StorageReliabilityCounter) e MSStorageDriver_FailurePredictStatus.
@@ -120,12 +116,6 @@ App WPF (.NET 8) com:
   Logitech e outras, já que essas marcas não têm SDK público) e **Razer Chroma** (API REST do Synapse). Efeitos: cor fixa, respiração, arco-íris em onda,
   e cores que seguem a **temperatura da CPU/GPU** ou a **carga da CPU**, com brilho e velocidade. Ao devolver ou fechar, cada fabricante reassume as luzes.
   Para MSI/Gigabyte/ASUS: abra o OpenRGB com o servidor ligado e feche MSI Center, Armoury Crate e RGB Fusion.
-- **GLM JOGOS** (`GameLibrary.cs`, `GameLauncher.cs`, `Vdf.cs`, `MainWindow.Launcher.cs`): inicializador que **detecta os jogos instalados** (Steam, Epic Games, GOG,
-  Ubisoft Connect e `.exe` adicionados à mão) e guarda um **perfil por jogo**: prioridade do processo, plano de energia Alto desempenho só durante o jogo,
-  GPU dedicada e sem otimizações de tela cheia (por `.exe`, no registro do usuário), **menu de gráficos** (modo de janela, resolução, taxa de atualização e extras
-  convertidos em argumentos de inicialização no estilo Source/CS2, Unity ou Unreal) e **programas auxiliares** (ferramentas de terceiros que abrem antes do jogo
-  e fecham junto). Em jogos da Steam, um botão grava os argumentos nas **opções de inicialização** (`localconfig.vdf`, com backup, fechando a Steam antes).
-  O botão JOGAR aplica o perfil, inicia e desfaz o que for temporário quando o jogo fecha.
 
 ## Interface
 - Visual preto e branco minimalista em **blocos** (cartões arredondados, inspirado em painéis de dashboard). Um único menu lateral
@@ -133,11 +123,10 @@ App WPF (.NET 8) com:
   - *Visão geral* (`MainWindow.Dash.cs`): gráfico de área CPU × GPU (temperatura, carga ou consumo; 1/5/15 min),
     desempenho do GLM BENCH, tabela de componentes, anéis de RAM/VRAM/disco, eventos recentes e saúde do PC.
   - **GLM INFRA LUFT** · Sistema, Sensores, Placa de vídeo, Discos, Energia, Rede.
-  - **GLM JOGOS** · Biblioteca, FPS estimado, Gargalo, Overlay.
   - **GLM DESEMPENHO** · Benchmark, Stress test, Overclock.
-  - **GLM FERRAMENTAS** · Otimização, Limpeza, Técnico, Inicialização, Instalar apps, Drivers, Integração.
+  - **GLM FERRAMENTAS** · Otimização, Limpeza, Técnico, Inicialização, Instalar apps, Domínio, Drivers, Integração.
   - **GLM MAKER** · Portas COM, Drivers seriais.
-- Botão de **modo escuro/claro** no canto superior direito (`ThemeManager.cs`); a escolha fica salva. O overlay de jogos e os avisos de dispositivo ficam sempre escuros.
+- Botão de **modo escuro/claro** no canto superior direito (`ThemeManager.cs`); a escolha fica salva. Os avisos de dispositivo ficam sempre escuros.
 - Leitura ao vivo de temperatura e carga da CPU e da GPU sempre visível no rodapé do menu.
 - Sensores com busca e filtros por tipo (chips); tema em `Theme.xaml`.
 
@@ -145,7 +134,6 @@ App WPF (.NET 8) com:
 - Interface, stress test e gráficos: código próprio.
 - Sensores: [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) (MPL 2.0) — mantenha o aviso de licença ao distribuir.
 - Informações do sistema: WMI do Windows.
-- Medição de FPS: [TraceEvent](https://github.com/microsoft/perfview) (MIT), da Microsoft, para ler eventos ETW.
 - Renderização do stress de GPU: [Vortice.Windows](https://github.com/amerkoleci/Vortice.Windows) (MIT), bindings de Direct3D 11 para .NET. Direct3D 12 e DXC (compilador de shaders da Microsoft) também via Vortice, no teste de ray tracing.
 
 ## Requisitos
@@ -172,7 +160,7 @@ Ao criar uma tag (`git tag v0.12` e `git push --tags`), também sai uma release 
 - Se algum sensor não aparecer, depende do suporte da biblioteca à sua placa-mãe.
 
 ## Já feito
-- ✔ Informações do sistema, sensores, placa de vídeo, jogos, gargalo, overlay
+- ✔ Informações do sistema, sensores, placa de vídeo
 - ✔ Stress test com limite de temperatura (CPU, RAM, GPU)
 - ✔ Benchmarks: CPU, GPU, simulação, memória e **disco**
 - ✔ Saúde dos discos (S.M.A.R.T.)
@@ -181,7 +169,6 @@ Ao criar uma tag (`git tag v0.12` e `git push --tags`), também sai uma release 
 - ✔ Energia (bateria e fonte) e Rede (latência, perda e velocidade)
 - ✔ GLM INTEGRAÇÃO: iluminação Corsair iCUE, OpenRGB (MSI/Gigabyte/ASUS) e Razer Chroma (primeira versão, em teste)
 - ✔ GLM DRIVER: inventário de drivers, NVIDIA (verifica a versão, baixa, confere a assinatura e abre o instalador), AMD/ASUS/MSI/Gigabyte pela página oficial, Windows Update e backup (`DriverManager.cs`, primeira versão, em teste)
-- ✔ GLM JOGOS: inicializador com detecção de jogos, perfil por jogo e opções de inicialização da Steam (primeira versão, em teste)
 - ✔ Inicialização do Windows: ativar, desativar e remover programas, com desfazer (v0.16)
 - ✔ Abertura rápida: janela na hora, hardware carregado em paralelo (v0.16)
 - ✔ Instalar apps essenciais pós-formatação pelo winget (v0.16)

@@ -2,7 +2,7 @@ GLM INFRA LUFT
 ==============
 
 Ferramenta de diagnóstico de hardware: informações do sistema, sensores, placa de vídeo,
-FPS estimado em jogos, detector de gargalo, overlay de FPS, GLM BENCH (benchmarks de CPU, GPU, memória e disco)
+GLM BENCH (benchmarks de CPU, GPU, memória e disco)
 GLM OTIMIZA (limpeza de memória e ajustes para jogos) e stress test de CPU / RAM / GPU.
 
 REQUISITOS
@@ -18,7 +18,6 @@ COMO USAR
 - Abra o GLMInfraLuft.exe. Na primeira vez ele demora alguns segundos para iniciar.
 - Se o Windows mostrar "O Windows protegeu o computador", clique em "Mais informações"
   e depois em "Executar assim mesmo" (o programa não tem assinatura digital paga).
-- Overlay: Ctrl + Shift + O liga e desliga.
 
 OBSERVAÇÕES
 - Placas NVIDIA mostram mais detalhes (VBIOS, limites de energia, CUDA).
