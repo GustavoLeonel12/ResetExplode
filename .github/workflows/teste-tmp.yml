@@ -18,10 +18,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release view teste *> $null
-          if ($LASTEXITCODE -eq 0) {
-            gh release upload teste dist/GLMInfraLuft.exe --clobber
-            gh release edit teste --notes "Versão de teste do PR #4 (ingresso no domínio). Não é a versão oficial."
-          } else {
-            gh release create teste dist/GLMInfraLuft.exe --target $env:GITHUB_SHA --prerelease --latest=false --title "GLM INFRA LUFT (teste do PR #4)" --notes "Versão de teste do PR #4 (ingresso no domínio). Não é a versão oficial."
+          for ($i = 1; $i -le 4; $i++) {
+            gh release create teste-dominio dist/GLMInfraLuft.exe --target $env:GITHUB_SHA --prerelease --latest=false --title "GLM INFRA LUFT (teste do PR #4: domínio)" --notes "Versão de teste do PR #4 (ingresso no domínio). Não é a versão oficial."
+            if ($LASTEXITCODE -eq 0) { exit 0 }
+            Start-Sleep -Seconds (15 * $i)
           }
+          exit 1
