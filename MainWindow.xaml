@@ -275,6 +275,12 @@
                                     <TextBlock Text="Instalar apps" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </RadioButton>
+                            <RadioButton x:Name="NavDomain" Style="{StaticResource NavItem}" Tag="PageDomain" Checked="Nav_Checked">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE968;" FontFamily="{StaticResource Icons}" FontSize="14" Width="28" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Domínio" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </RadioButton>
                             <RadioButton x:Name="NavDriver" Style="{StaticResource NavItem}" Tag="PageDriver" Checked="Nav_Checked">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE896;" FontFamily="{StaticResource Icons}" FontSize="14" Width="28" VerticalAlignment="Center"/>
@@ -2023,6 +2029,74 @@
                                             Padding="14,7" Margin="12,0,0,0" VerticalAlignment="Center" Click="BtnOfficeActivate_Click"/>
                                 </Grid>
                                 <TextBlock x:Name="OfficeKeyStatus" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0" Foreground="{DynamicResource Muted}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ===== GLM FERRAMENTAS · Domínio (renomear no padrão e ingressar no AD) ===== -->
+                <ScrollViewer x:Name="PageDomain" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <StackPanel Margin="0,0,0,20">
+                            <TextBlock Text="DOMÍNIO" Style="{StaticResource H1}"/>
+                            <TextBlock Text="Renomeia no padrão Luft (ex.: LABARPC001) com o próximo número livre no AD e ingressa no domínio num passo só" Style="{StaticResource Sub}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <Border x:Name="DomainWarnBox" Style="{StaticResource CardBorder}" Visibility="Collapsed">
+                            <TextBlock x:Name="DomainWarn" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                        </Border>
+
+                        <Border Style="{StaticResource CardBorder}">
+                            <StackPanel>
+                                <TextBlock Text="NOME DA MÁQUINA" Style="{StaticResource Label}" Margin="0,0,0,8"/>
+                                <TextBlock Text="Segmento" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,0,0,6"/>
+                                <WrapPanel x:Name="DomainSegPanel" Margin="0,0,0,8">
+                                    <RadioButton Style="{StaticResource Chip}" GroupName="DomainSeg" Content="LCBAR · Luft Corporativo" Tag="LCBAR" IsChecked="True"/>
+                                    <RadioButton Style="{StaticResource Chip}" GroupName="DomainSeg" Content="LABAR · Luft Agro" Tag="LABAR"/>
+                                </WrapPanel>
+                                <TextBlock Text="Tipo" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,0,0,6"/>
+                                <WrapPanel x:Name="DomainTypePanel" Margin="0,0,0,2">
+                                    <RadioButton x:Name="DomainTypeNb" Style="{StaticResource Chip}" GroupName="DomainType" Content="NB · Notebook" Tag="NB"/>
+                                    <RadioButton x:Name="DomainTypePc" Style="{StaticResource Chip}" GroupName="DomainType" Content="PC · Desktop" Tag="PC"/>
+                                </WrapPanel>
+                                <TextBlock x:Name="DomainTypeHint" Foreground="{DynamicResource Faint}" FontSize="11" Margin="0,0,0,12"/>
+
+                                <TextBlock Text="CONTA COM PERMISSÃO NO AD" Style="{StaticResource Label}" Margin="0,4,0,8"/>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Domínio" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                                    <TextBox x:Name="DomainNameBox" Grid.Column="1" MaxWidth="360" HorizontalAlignment="Left" Width="360" Margin="0,0,0,8"/>
+                                    <TextBlock Grid.Row="1" Text="Usuário" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                                    <TextBox x:Name="DomainUserBox" Grid.Row="1" Grid.Column="1" Tag="usuario (ou usuario@luft.com.br)" MaxWidth="360" HorizontalAlignment="Left" Width="360" Margin="0,0,0,8"/>
+                                    <TextBlock Grid.Row="2" Text="Senha" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                                    <PasswordBox x:Name="DomainPassBox" Grid.Row="2" Grid.Column="1" MaxWidth="360" HorizontalAlignment="Left" Width="360" Margin="0,0,0,8"/>
+                                    <TextBlock Grid.Row="3" Text="OU (opcional)" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                                    <TextBox x:Name="DomainOuBox" Grid.Row="3" Grid.Column="1" Tag="OU=Computadores,DC=luft,DC=com,DC=br" FontFamily="{StaticResource Mono}" MaxWidth="460" HorizontalAlignment="Left" Width="460"/>
+                                </Grid>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14">
+                                    A senha é usada só nesta operação e não é salva nem registrada em log. Sem OU, a máquina vai para a pasta padrão de computadores do AD.
+                                </TextBlock>
+
+                                <TextBlock Text="NOVO NOME" Style="{StaticResource Label}" Margin="0,0,0,8"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button x:Name="BtnDomainFind" Style="{StaticResource OutlineButton}" Content="BUSCAR PRÓXIMO NOME" Padding="14,7"
+                                            VerticalAlignment="Center" Click="BtnDomainFind_Click"/>
+                                    <TextBox x:Name="DomainNewName" Grid.Column="1" Tag="LCBARPC001" CharacterCasing="Upper" MaxLength="15"
+                                             FontFamily="{StaticResource Mono}" Width="200" Margin="12,0,12,0"/>
+                                    <Button x:Name="BtnDomainJoin" Grid.Column="2" Style="{StaticResource PrimaryButton}" Content="INGRESSAR NO DOMÍNIO" Padding="18,8"
+                                            HorizontalAlignment="Left" VerticalAlignment="Center" Click="BtnDomainJoin_Click"/>
+                                </Grid>
+                                <TextBlock x:Name="DomainStatus" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,12,0,0"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
