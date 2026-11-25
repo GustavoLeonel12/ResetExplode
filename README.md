@@ -14,6 +14,7 @@
 ## Novidades da v0.16
 - **Inicialização** (GLM FERRAMENTAS): veja, desative ou remova os programas que abrem junto com o Windows, com opção de desfazer.
 - **Instalar apps** (GLM FERRAMENTAS): os essenciais de uma vez depois de formatar, pelo winget.
+- **Domínio** (GLM FERRAMENTAS): renomeia no padrão Luft (ex.: LABARPC001) com o próximo número livre no AD e ingressa em luft.com.br.
 - **GLM MAKER** (nova categoria): Portas COM (fantasmas e números COM presos, que saiu de Otimização) e Drivers seriais
   (CH340, CP2102, FTDI, Prolific e Arduino: diagnóstico, reinstalar, trocar ou remover versão do driver, Arduino IDE).
 - **Abertura mais rápida**: a janela aparece em ~0,5 s (antes ~4,6 s); o hardware é lido em paralelo, em segundo plano.
@@ -91,6 +92,11 @@ App WPF (.NET 8) com:
   embutida. Campo opcional para a **chave do cliente**: ela vai no `PIDKEY` com `AUTOACTIVATE` e, se preciso, o `OSPP.VBS`
   (`/inpkey` + `/act`) ativa; serve também para ativar um Office já instalado. A chave não é salva (o XML é apagado ao terminar), em silêncio e um de cada vez, mostrando o resultado de cada um. Detecta o que já está
   instalado (Aplicativos instalados do Windows). Para incluir outro app, acrescente uma linha em `AppInstaller.Catalog()` com o ID do winget.
+- **Domínio** (`DomainJoin.cs`, `MainWindow.Domain.cs`): nome = segmento (LCBAR Luft Corporativo / LABAR Luft Agro) + tipo
+  (NB notebook / PC desktop, detectado pelo chassi ou bateria) + 3 dígitos. Consulta o AD por LDAP com a conta informada, sugere o
+  maior número existente + 1 (pulando qualquer nome que já exista), confere de novo logo antes, renomeia e ingressa num passo só
+  (`SetComputerNameEx` + `NetJoinDomain` com `JOIN_WITH_NEW_NAME`, OU opcional) e oferece reiniciar. Se o ingresso falhar, o nome
+  volta ao anterior. Avisa se o Windows for Home ou se a máquina já estiver num domínio. A senha não é salva nem registrada.
 - **Saúde dos discos (S.M.A.R.T.)** (`DiskHealth.cs`, `MainWindow.Disks.cs`): página própria com um cartão por disco físico —
   veredito (Bom/Atenção/Ruim) com os motivos, temperatura, horas ligado, ciclos, desgaste do SSD, setores realocados, erros de leitura/escrita
   e previsão de falha. Fontes: Windows Storage (MSFT_PhysicalDisk, MSFT_StorageReliabilityCounter) e MSStorageDriver_FailurePredictStatus.
@@ -118,7 +124,7 @@ App WPF (.NET 8) com:
     desempenho do GLM BENCH, tabela de componentes, anéis de RAM/VRAM/disco, eventos recentes e saúde do PC.
   - **GLM INFRA LUFT** · Sistema, Sensores, Placa de vídeo, Discos, Energia, Rede.
   - **GLM DESEMPENHO** · Benchmark, Stress test, Overclock.
-  - **GLM FERRAMENTAS** · Otimização, Limpeza, Técnico, Inicialização, Instalar apps, Drivers, Integração.
+  - **GLM FERRAMENTAS** · Otimização, Limpeza, Técnico, Inicialização, Instalar apps, Domínio, Drivers, Integração.
   - **GLM MAKER** · Portas COM, Drivers seriais.
 - Botão de **modo escuro/claro** no canto superior direito (`ThemeManager.cs`); a escolha fica salva. Os avisos de dispositivo ficam sempre escuros.
 - Leitura ao vivo de temperatura e carga da CPU e da GPU sempre visível no rodapé do menu.
